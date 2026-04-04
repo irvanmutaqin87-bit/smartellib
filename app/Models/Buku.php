@@ -36,7 +36,8 @@ class Buku extends Model
 
     public function comments()
     {
-        return $this->hasMany(BookComment::class, 'buku_id', 'id');
+        return $this->hasMany(BookComment::class, 'buku_id', 'id')
+                    ->whereNull('parent_id');
     }
 
     public function peminjaman()

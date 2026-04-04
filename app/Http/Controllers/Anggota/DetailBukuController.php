@@ -124,18 +124,18 @@ class DetailBukuController extends Controller
             $bolehPinjam =
                 !$sedangDipinjamUser &&
                 !$punyaDendaAktif &&
-                !$stokHabis &&
                 !$sudahMelebihiBatas &&
-                !$isDigital &&
-                $user->status === 'aktif';
+                $user->status === 'aktif' &&
+                (
+                    ($isDigital) || (!$isDigital && !$stokHabis)
+                );
 
-            // LOGIKA BOLEH ANTRI
             $bolehAntri =
                 !$sedangDipinjamUser &&
                 !$punyaDendaAktif &&
-                $stokHabis &&
                 !$sudahAntri &&
                 !$isDigital &&
+                $stokHabis &&
                 $user->status === 'aktif';
         }
 

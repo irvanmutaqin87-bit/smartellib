@@ -4,6 +4,14 @@
 
 @section('content')
 
+@if(session('success'))
+    <div class="max-w-4xl mx-auto mt-6">
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-3 rounded-2xl shadow-sm">
+            {{ session('success') }}
+        </div>
+    </div>
+@endif
+
     <section class="bg-white py-10 flex justify-center">
     <div class="bg-white w-full max-w-4xl rounded-2xl p-8 shadow-2xl relative">
         <!-- TITIK 3 MENU -->
@@ -116,24 +124,51 @@
             </div>
 
             <!-- BUTTON -->
-            <div class="flex gap-4 mt-5">
+            <div class="flex flex-wrap gap-4 mt-5">
 
-            <button class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                Pinjam
-            </button>
+                {{-- PINJAM --}}
+                @if($bolehPinjam)
+                    <form action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                            Pinjam
+                        </button>
+                    </form>
+                @endif
 
-            <button class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                Baca
-            </button>
+                {{-- ANTRI --}}
+                @if($bolehAntri)
+                    <form action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST">
+                        @csrf
+                        <button type="submit" class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
+                            Masuk Antrian
+                        </button>
+                    </form>
+                @endif
 
-            <button class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                Download
-            </button>
+                {{-- BACA --}}
+                @if($isDigital && $sedangDipinjam)
+                    <a href="{{ asset('storage/' . $buku->file_buku) }}" target="_blank"
+                        class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                        Baca
+                    </a>
+                @endif
 
-            <button onclick="switchTab(2); openReviewModal()"
-                class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                Berikan Ulasan
-            </button>
+                {{-- DOWNLOAD --}}
+                @if($isDigital && $sedangDipinjam)
+                    <a href="{{ asset('storage/' . $buku->file_buku) }}" download
+                        class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                        Download
+                    </a>
+                @endif
+
+                {{-- ULASAN --}}
+                @if($bolehUlasan)
+                    <button type="button" id="openUlasanModal"
+                        class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                        {{ $userComment || $userRating ? 'Edit Ulasan' : 'Berikan Ulasan' }}
+                    </button>
+                @endif
             </div>
 
             <!-- INFO PINJAM -->
@@ -220,21 +255,21 @@
         </div>
 
         <!-- STATISTIK -->
-        <div class="flex justify-center gap-20 text-center mt-10">
-        <div>
-            <p class="font-semibold">Telah Dibaca Oleh</p>
-            <p class="text-gray-500">{{ $totalDipinjam }} Pengguna</p>
-        </div>
+        <div class="flex justify-center gap-20 text-center mt-10 flex-wrap">
+            <div>
+                <p class="font-semibold">Telah Dipinjam</p>
+                <p class="text-gray-500">{{ $totalDipinjam }} Pengguna</p>
+            </div>
 
-        <div>
-            <p class="font-semibold">Antrian</p>
-            <p class="text-gray-500">2 Pengguna</p>
-        </div>
+            <div>
+                <p class="font-semibold">Antrian</p>
+                <p class="text-gray-500">{{ $totalAntrian }} Pengguna</p>
+            </div>
 
-        <div>
-            <p class="font-semibold">Sedang Dipinjam Oleh</p>
-            <p class="text-gray-500">9 Pengguna</p>
-        </div>
+            <div>
+                <p class="font-semibold">Sedang Dipinjam</p>
+                <p class="text-gray-500">{{ $sedangDipinjam }} Pengguna</p>
+            </div>
         </div>
 
         <hr class="my-8" />
@@ -286,12 +321,7 @@
                 id="descText"
                 class="text-gray-700 leading-relaxed line-clamp-2 transition-all duration-500 overflow-hidden"
             >
-            Buku ini membahas perjalanan epik dalam dunia fantasi Middle Earth
-            yang penuh petualangan, persahabatan, dan perjuangan melawan
-            kekuatan gelap. Karya legendaris ini telah menjadi salah satu
-            novel fantasi paling berpengaruh sepanjang masa dan menginspirasi
-            berbagai adaptasi film serta budaya populer yang sangat dicintai
-            oleh pembaca di seluruh dunia.
+                {{ $buku->deskripsi ?? 'Belum ada deskripsi buku.' }}
             </p>
 
             <button
@@ -308,68 +338,85 @@
             <div class="min-w-full px-6">
 
                 <div class="grid grid-cols-2 gap-y-4 gap-x-10 text-sm">
-                <div>
-                    <p class="text-gray-500">Pengarang</p>
-                    <p class="font-semibold">J.R.R. Tolkien</p>
-                </div>
+                    <div>
+                        <p class="text-gray-500">Pengarang</p>
+                        <p class="font-semibold">{{ $buku->penulis }}</p>
+                    </div>
 
-                <div>
-                    <p class="text-gray-500">Penerbit</p>
-                    <p class="font-semibold">Perpusnas Press</p>
-                </div>
+                    <div>
+                        <p class="text-gray-500">Penerbit</p>
+                        <p class="font-semibold">{{ $buku->penerbit ?? '-' }}</p>
+                    </div>
 
-                <div>
-                    <p class="text-gray-500">Tahun Terbit</p>
-                    <p class="font-semibold">2026</p>
-                </div>
+                    <div>
+                        <p class="text-gray-500">Tahun Terbit</p>
+                        <p class="font-semibold">{{ $buku->tahun_terbit ?? '-' }}</p>
+                    </div>
 
-                <div>
-                    <p class="text-gray-500">Kategori</p>
-                    <p class="font-semibold">Fantasi</p>
-                </div>
+                    <div>
+                        <p class="text-gray-500">Kategori</p>
+                        <p class="font-semibold">{{ $buku->kategori->nama_kategori ?? '-' }}</p>
+                    </div>
 
-                </div>
-            </div>
+                    <div>
+                        <p class="text-gray-500">Total Halaman</p>
+                        <p class="font-semibold">{{ $buku->total_halaman ?? '-' }}</p>
+                    </div>
 
-            <!-- ULASAN -->
-            <div class="min-w-full px-6 space-y-6">
-                <div class="flex gap-4">
-                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                <div>
-
-                    <p class="font-semibold text-sm">
-                    Maharia
-                    </p>
-
-                    <p class="text-yellow-400 text-sm">
-                    ★★★★★
-                    </p>
-
-                    <p class="text-gray-600 text-sm mt-1">
-                    Cerita sangat menarik dan penuh petualangan.
-                    </p>
-
-                </div>
-                </div>
-
-                <div class="flex gap-4">
-                <div class="w-10 h-10 bg-gray-300 rounded-full"></div>
-                <div>
-
-                    <p class="font-semibold text-sm">
-                    Rizky
-                    </p>
-
-                    <p class="text-yellow-400 text-sm">
-                    ★★★★☆
-                    </p>
-
-                    <p class="text-gray-600 text-sm mt-1">
-                    Salah satu buku fantasi terbaik yang pernah saya baca.
-                    </p>
-                </div>
+                    <div>
+                        <p class="text-gray-500">Kode Buku</p>
+                        <p class="font-semibold">{{ $buku->kode_buku ?? '-' }}</p>
+                    </div>
                 </div>
             </div>
+
+                <div class="min-w-full px-6 space-y-6">
+
+                    @forelse($ulasan as $komen)
+                        @php
+                            $ratingUser = $ratingsByUser[$komen->user_id]->rating ?? 0;
+                        @endphp
+
+                        <div class="flex gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50">
+                            <div class="w-11 h-11 bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center font-semibold">
+                                {{ strtoupper(substr($komen->user->name ?? 'U', 0, 1)) }}
+                            </div>
+
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between flex-wrap gap-2">
+                                    <div>
+                                        <p class="font-semibold text-sm text-slate-800">
+                                            {{ $komen->user->name ?? 'Pengguna' }}
+                                        </p>
+
+                                        <div class="text-yellow-400 text-sm mt-1">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($i <= $ratingUser)
+                                                    ★
+                                                @else
+                                                    <span class="text-gray-300">★</span>
+                                                @endif
+                                            @endfor
+                                        </div>
+                                    </div>
+
+                                    <p class="text-xs text-slate-400">
+                                        {{ $komen->created_at?->diffForHumans() }}
+                                    </p>
+                                </div>
+
+                                <p class="text-gray-600 text-sm mt-2 leading-relaxed">
+                                    {{ $komen->comment }}
+                                </p>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-10 text-gray-500">
+                            Belum ada ulasan untuk buku ini.
+                        </div>
+                    @endforelse
+
+                </div>
             </div>
         </div>
         </div>
@@ -623,6 +670,179 @@ opacity-0 pointer-events-none transition duration-300">
         </form>
     </div>
 </div>
+
 @endif
+<!-- MODAL ULASAN -->
+<div id="reviewModal"
+class="fixed inset-0 z-[70] flex items-center justify-center
+bg-black/40 backdrop-blur-sm
+opacity-0 pointer-events-none transition duration-300">
+
+    <div id="reviewCard"
+    class="bg-white w-[92%] max-w-lg rounded-[28px] shadow-2xl p-7
+    opacity-0 scale-75 translate-y-8
+    transition-all duration-300 ease-out">
+
+        <div class="text-center mb-6">
+            <h3 class="text-xl font-semibold text-slate-800">
+                {{ $userRating || $userComment ? 'Edit Ulasan' : 'Berikan Ulasan' }}
+            </h3>
+            <p class="text-sm text-slate-500 mt-1">
+                Berikan penilaian dan komentar untuk buku ini.
+            </p>
+        </div>
+
+        <form action="{{ route('anggota.buku.ulasan.store', $buku->id) }}" method="POST">
+            @csrf
+
+            <!-- RATING -->
+            <div class="mb-5 text-center">
+                <label class="block text-sm font-medium text-slate-700 mb-3">
+                    Rating Buku
+                </label>
+
+                <div class="flex justify-center gap-2 text-3xl">
+                    @for($i = 1; $i <= 5; $i++)
+                        <button type="button"
+                            class="star-btn text-gray-300 hover:scale-110 transition"
+                            data-value="{{ $i }}">
+                            ★
+                        </button>
+                    @endfor
+                </div>
+
+                <input type="hidden" name="rating" id="ratingInput"
+                    value="{{ old('rating', $userRating->rating ?? 0) }}">
+            </div>
+
+            <!-- KOMENTAR -->
+            <div class="mb-5">
+                <label class="block text-sm font-medium text-slate-700 mb-2">
+                    Ulasan Kamu
+                </label>
+                <textarea
+                    name="comment"
+                    rows="5"
+                    required
+                    placeholder="Tulis pengalaman atau pendapat kamu tentang buku ini..."
+                    class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-200 resize-none">{{ old('comment', $userComment->comment ?? '') }}</textarea>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button"
+                    id="closeReviewModal"
+                    class="px-5 py-2.5 rounded-full text-sm font-medium text-slate-500 hover:text-cyan-500 transition">
+                    Batal
+                </button>
+
+                <button type="submit"
+                    class="px-6 py-2.5 rounded-full bg-cyan-500 hover:bg-cyan-600 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300">
+                    Simpan Ulasan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
+<script>
+    // =========================
+    // TAB SWITCH
+    // =========================
+    let currentTab = 0;
+    const tabContent = document.getElementById("tabContent");
+    const tabLinks = document.querySelectorAll(".tab-link");
+    const tabIndicator = document.getElementById("tabIndicator");
+
+    function switchTab(index) {
+        currentTab = index;
+        tabContent.style.transform = `translateX(-${index * 100}%)`;
+
+        tabLinks.forEach((tab, i) => {
+            tab.classList.toggle("text-cyan-600", i === index);
+            tab.classList.toggle("text-gray-500", i !== index);
+        });
+
+        moveIndicator();
+    }
+
+    function moveIndicator() {
+        const activeTab = tabLinks[currentTab];
+        tabIndicator.style.width = `${activeTab.offsetWidth}px`;
+        tabIndicator.style.left = `${activeTab.offsetLeft}px`;
+    }
+
+    window.addEventListener("load", () => {
+        switchTab(0);
+    });
+
+    window.addEventListener("resize", moveIndicator);
+
+    // =========================
+    // DESKRIPSI TOGGLE
+    // =========================
+    function toggleDesc() {
+        const desc = document.getElementById("descText");
+        const btn = document.getElementById("descBtn");
+
+        desc.classList.toggle("line-clamp-2");
+
+        if (desc.classList.contains("line-clamp-2")) {
+            btn.innerText = "Selengkapnya";
+        } else {
+            btn.innerText = "Sembunyikan";
+        }
+    }
+
+    // =========================
+    // MODAL ULASAN
+    // =========================
+    const reviewModal = document.getElementById("reviewModal");
+    const reviewCard = document.getElementById("reviewCard");
+    const closeReviewModalBtn = document.getElementById("closeReviewModal");
+
+    function openReviewModal() {
+        reviewModal.classList.remove("opacity-0", "pointer-events-none");
+        reviewCard.classList.remove("opacity-0", "scale-75", "translate-y-8");
+        reviewCard.classList.add("opacity-100", "scale-100", "translate-y-0");
+    }
+
+    function closeReviewModal() {
+        reviewModal.classList.add("opacity-0", "pointer-events-none");
+        reviewCard.classList.add("opacity-0", "scale-75", "translate-y-8");
+        reviewCard.classList.remove("opacity-100", "scale-100", "translate-y-0");
+    }
+
+    closeReviewModalBtn?.addEventListener("click", closeReviewModal);
+    reviewModal?.addEventListener("click", (e) => {
+        if (e.target === reviewModal) closeReviewModal();
+    });
+
+    // =========================
+    // STAR RATING
+    // =========================
+    const starButtons = document.querySelectorAll(".star-btn");
+    const ratingInput = document.getElementById("ratingInput");
+
+    function renderStars(value) {
+        starButtons.forEach((star, index) => {
+            if (index < value) {
+                star.classList.remove("text-gray-300");
+                star.classList.add("text-yellow-400");
+            } else {
+                star.classList.remove("text-yellow-400");
+                star.classList.add("text-gray-300");
+            }
+        });
+    }
+
+    starButtons.forEach((star) => {
+        star.addEventListener("click", function () {
+            const value = parseInt(this.dataset.value);
+            ratingInput.value = value;
+            renderStars(value);
+        });
+    });
+
+    renderStars(parseInt(ratingInput?.value || 0));
+</script>

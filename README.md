@@ -1,66 +1,367 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Readify - Sistem Perpustakaan Digital
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi perpustakaan digital untuk manajemen e-book dengan fitur berlangganan, pembacaan PDF, dan laporan penjualan.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📚 Tentang Aplikasi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**SMARTELLIB** adalah website untuk mengelola perpustakaan digital berbasis web. Aplikasi ini dilengkapi dengan:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Sistem login untuk admin, petugas dan anggota
+- Koleksi e-book yang bisa dibaca langsung di browser
+- Pelacakan riwayat membaca
+- Laporan peminjaman buku
+- Ekspor otomatis dalam format PDF
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## ✨ Fitur - Fitur yang ada
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Untuk Anggota
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- ✅ Daftar dan login akun
+- ✅ Cari dan jelajahi koleksi buku
+- ✅ Baca buku langsung dengan PDF reader atau langsung dalam website
+- ✅ Lihat riwayat membaca
+- ✅ Lihat dan download PDF
 
-## Laravel Sponsors
+### Untuk Petugas
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+- ✅ Tambah, edit, hapus buku
+- ✅ Konfirmasi anggota
+- ✅ Manajemen pembayaran denda
+- ✅ Dashboard dengan statistik
 
-### Premium Partners
+### Untuk Admin
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+- ✅ Dashboard dengan statistik
+- ✅ Lihat data Anggota, Petugas dan buku
+- ✅ Lihat laporan peminjaman buku
+- ✅ Export laporan ke PDF
+- ✅ Manajemen kategori buku dan petugas
+- ✅ Pengaturan sistem
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠️ Teknologi
 
-## Code of Conduct
+- **Backend:** Laravel 10, PHP 8.2+
+- **Frontend:** Tailwind CSS v3
+- **Database:** MySQL 8.0+
+- **PDF Reader:** PDF.js
+- **Build Tool:** npm
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 📦 Instalasi dengan XAMPP
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Prasyarat
 
-## License
+Sebelum mulai, pastikan semua tools berikut sudah terinstall di komputer kamu:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Tools                             | Keterangan             |  Disediakan XAMPP?  |
+| --------------------------------- | ---------------------- | :-----------------: |
+| XAMPP (Apache + MySQL + PHP 8.2+) | Web server & database  |        ✅ Ya        |
+| Git                               | Untuk clone repository | ❌ Install terpisah |
+| Composer                          | Package manager PHP    | ❌ Install terpisah |
+| Node.js (v18+) + npm              | Build frontend assets  | ❌ Install terpisah |
+
+---
+
+### ⚙️ Instalasi Tools Tambahan
+
+#### 1. Install Git
+
+1. Download Git di [https://git-scm.com/download/win](https://git-scm.com/download/win)
+2. Jalankan installer, ikuti langkah default, klik **Next** sampai selesai
+3. Cek instalasi berhasil:
+
+```bash
+git --version
+# Output: git version 2.x.x
+```
+
+#### 2. Install Composer
+
+1. Download Composer di [https://getcomposer.org/Composer-Setup.exe](https://getcomposer.org/Composer-Setup.exe)
+2. Jalankan installer — Composer akan otomatis mendeteksi PHP dari XAMPP
+3. Pastikan path PHP mengarah ke `C:\xampp\php\php.exe` saat instalasi
+4. Cek instalasi berhasil:
+
+```bash
+composer --version
+# Output: Composer version 2.x.x
+```
+
+> ⚠️ Jika Composer tidak menemukan PHP secara otomatis, arahkan manual ke `C:\xampp\php\php.exe`
+
+#### 3. Install Node.js
+
+1. Download Node.js (versi LTS) di [https://nodejs.org/](https://nodejs.org/)
+2. Jalankan installer, ikuti langkah default
+3. npm akan terinstall otomatis bersama Node.js
+4. Cek instalasi berhasil:
+
+```bash
+node --version
+# Output: v18.x.x atau lebih baru
+
+npm --version
+# Output: 9.x.x atau lebih baru
+```
+
+#### 4. Tambahkan PHP XAMPP ke PATH (jika belum)
+
+Agar perintah `php` bisa dijalankan dari CMD manapun:
+
+1. Buka **Start Menu** → cari **"Environment Variables"**
+2. Klik **"Edit the system environment variables"**
+3. Klik tombol **"Environment Variables..."**
+4. Pada bagian **System variables**, pilih **Path** → klik **Edit**
+5. Klik **New** dan tambahkan: `C:\xampp\php`
+6. Klik **OK** pada semua jendela
+7. Buka CMD baru dan cek:
+
+```bash
+php --version
+# Output: PHP 8.2.x ...
+```
+
+---
+
+### Langkah Instalasi
+
+**1. Clone folder SMARTELLIB ke folder `xampp/htdocs`**
+
+```bash
+# Buka Command Prompt atau Terminal
+cd C:\xampp\htdocs
+git clone <url-repository> smartellib
+cd smartellib
+code .
+```
+
+> Perintah `code .` akan membuka project di VS Code
+
+**2. Install dependencies PHP**
+
+```bash
+composer install
+```
+
+**3. Install dependencies npm**
+
+```bash
+npm install
+```
+
+**4. Setup environment file**
+
+```bash
+# Copy file environment
+copy .env.example .env
+
+# Generate app key
+php artisan key:generate
+```
+
+**5. Konfigurasi database**
+
+File `.env` sudah dikonfigurasi untuk XAMPP secara default:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=elibrary
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+> Jika konfigurasi MySQL XAMPP kamu berbeda, sesuaikan nilai di atas pada file `.env`
+
+**6. Buat database di phpMyAdmin**
+
+- Buka browser, akses `http://localhost/phpmyadmin`
+- Klik **New** dan buat database dengan nama `elibrary`
+
+**7. Setup database & seeder**
+
+```bash
+# Jalankan migrasi dan seeding (pertama kali)
+php artisan migrate --seed
+```
+
+**8. Build frontend assets (Opsional pada setup awal)**
+
+```bash
+npm run build
+```
+
+✅ **Instalasi selesai!**
+
+---
+
+## 🚀 Cara Menjalankan
+
+### 1. Mulai XAMPP
+
+- Buka aplikasi **XAMPP Control Panel**
+- Klik tombol **Start** pada **Apache** dan **MySQL**
+- Pastikan kedua service sudah berjalan (status berubah hijau ✅)
+
+### 2. Jalankan Development Mode
+
+Buka **2 jendela Command Prompt / Terminal**:
+
+**Terminal 1 - Jalankan Laravel Server**
+
+```bash
+cd C:\xampp\htdocs\smartellib
+php artisan serve
+```
+
+> Server akan berjalan di `http://127.0.0.1:8000`
+
+**Terminal 2 - Jalankan Vite Development Server**
+
+```bash
+cd C:\xampp\htdocs\smartellib
+npm run dev
+```
+
+> Tunggu sampai Vite siap (akan muncul pesan seperti `Local: http://localhost:5173`)
+
+Biarkan kedua terminal tetap berjalan selama development.
+
+### 3. Akses Aplikasi di Browser
+
+| Halaman      | URL                           |
+| ------------ | ----------------------------- |
+| Landing Page | `http://127.0.0.1:8000/`      |
+| Login        | `http://127.0.0.1:8000/login` |
+
+> Atau bisa juga diakses lewat: `http://localhost/smartellib/public/`
+
+---
+
+## 🧪 Akun Test (Seeder)
+
+### Admin
+
+```
+Email:    alex123@gmail.com
+Password: alex123
+Username: Alex
+```
+
+### Anggota (Member)
+
+```
+Email:    padlan123@gmail.com
+Password: padlan123
+Username: Padlan Padilah
+```
+
+> **Info:** Ada 4 akun anggota tambahan lainnya di database untuk testing. Cek detail di `database/seeders/DatabaseSeeder.php`
+
+---
+
+## 📁 Struktur Folder
+
+```
+smartellib/
+├── app/
+│   ├── Models/              # Model database
+│   └── Http/
+│       ├── Controllers/     # Controller
+│       └── Middleware/      # Middleware
+├── resources/
+│   ├── views/               # Template HTML
+│   └── css/                 # Style Tailwind
+├── routes/
+│   └── web.php              # Route aplikasi
+├── database/
+│   ├── migrations/          # Schema database
+│   └── seeders/             # Data dummy
+├── public/                  # File publik
+└── config/                  # Konfigurasi
+```
+
+---
+
+## 👥 Peran Pengguna
+
+### Admin
+
+- Akses penuh ke dashboard admin
+- Kelola buku, member, dan langganan
+- Lihat laporan dan statistik
+
+### Petugas
+
+- Tambah dan kelola koleksi buku
+- Konfirmasi pendaftaran anggota
+- Manajemen pembayaran denda
+
+### Member (Anggota)
+
+- Akses halaman member
+- Baca buku dan lihat detail
+- Langganan paket
+- Lihat dan download invoice
+
+---
+
+## 🔐 Keamanan
+
+- ✅ Sistem login dengan Laravel Authentication
+- ✅ Proteksi CSRF otomatis
+- ✅ Password di-hash dengan bcrypt
+- ✅ Role-based access control
+- ✅ Session aman berbasis database
+
+---
+
+## 📚 Fitur Utama
+
+### Pembaca PDF
+
+- Baca buku langsung di browser
+- Navigasi halaman mudah
+- Tracking halaman terakhir dibaca
+
+### Manajemen Langganan
+
+- Berbagai paket pilihan
+- Track status langganan
+- History transaksi
+- Invoice dapat didownload sebagai PDF
+
+### Laporan
+
+- Laporan berlangganan
+- Data buku
+- Export ke PDF
+
+---
+
+## ❓ Troubleshooting
+
+| Masalah                     | Solusi                                                              |
+| --------------------------- | ------------------------------------------------------------------- |
+| `php` tidak dikenali di CMD | Tambahkan `C:\xampp\php` ke PATH environment variable               |
+| Port 80 sudah dipakai       | Ganti port Apache di XAMPP config, atau gunakan `php artisan serve` |
+| Database tidak bisa connect | Pastikan MySQL di XAMPP sudah **Start** dan nama DB sudah dibuat    |
+| Halaman blank / error 500   | Cek file `.env` sudah di-copy dan `APP_KEY` sudah di-generate       |
+
+---
+
+## 📧 Support
+
+Ada pertanyaan atau masalah? Buat issue di repository ini.
+
+---
+
+**Dibuat dengan ❤️ oleh tim development**

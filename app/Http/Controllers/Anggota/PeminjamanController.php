@@ -57,14 +57,7 @@ class PeminjamanController extends Controller
             $buku = Buku::findOrFail($id);
             $pengaturan = PengaturanSistem::aktif();
 
-            if (!empty($buku->file_buku)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Buku digital tidak perlu dipinjam.',
-                ], 422);
-            }
-
-            if ($buku->stok <= 0) {
+            if (empty($buku->file_buku) && $buku->stok <= 0) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Stok buku habis. Silakan masuk antrian.',
@@ -121,7 +114,9 @@ class PeminjamanController extends Controller
                 'status' => 'dipinjam',
             ]);
 
+            if (empty($buku->file_buku)) {
             $buku->decrement('stok');
+}
 
             DB::commit();
 

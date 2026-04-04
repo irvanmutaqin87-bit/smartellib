@@ -5,10 +5,22 @@
 @section('content')
 
 @if(session('success'))
-    <div class="max-w-4xl mx-auto mt-6">
-        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-5 py-3 rounded-2xl shadow-sm">
-            {{ session('success') }}
-        </div>
+    <div id="toast"
+        class="fixed top-6 right-6 z-[9999]
+        px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium
+        bg-emerald-500
+        opacity-0 scale-75 transition-all duration-300">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div id="toast"
+        class="fixed top-6 right-6 z-[9999]
+        px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium
+        bg-red-500
+        opacity-0 scale-75 transition-all duration-300">
+        {{ session('error') }}
     </div>
 @endif
 
@@ -128,9 +140,10 @@
 
                 {{-- PINJAM --}}
                 @if($bolehPinjam)
-                    <form action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST" class="ajax-action-form">
+                    <form id="pinjamForm" action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                        <button type="submit"
+                            class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
                             Pinjam
                         </button>
                     </form>
@@ -138,9 +151,10 @@
 
                 {{-- ANTRI --}}
                 @if($bolehAntri)
-                    <form action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST" class="ajax-action-form">
+                    <form id="antrianForm" action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST">
                         @csrf
-                        <button type="submit" class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
+                        <button type="submit"
+                            class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
                             Masuk Antrian
                         </button>
                     </form>
@@ -179,6 +193,11 @@
             <p class="text-sm text-gray-600 mt-2">
                 Lama peminjaman:
                 <b>{{ $pengaturan->lama_peminjaman ?? 7 }} Hari</b>
+            </p>
+
+            <p class="text-sm text-gray-600 mt-1">
+                Batas peminjaman:
+                <b>{{ $pengaturan->batas_peminjaman ?? 3 }} Buku</b>
             </p>
 
             <p class="text-sm text-red-400">

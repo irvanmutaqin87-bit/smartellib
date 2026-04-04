@@ -79,30 +79,40 @@
         <!-- TOP -->
         <div class="flex flex-col md:flex-row gap-8">
         <!-- COVER -->
-        <img src="https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg"
-            class="w-44 rounded-xl shadow"
+        <img src="{{ $buku->cover ? asset('storage/' . $buku->cover) : 'https://via.placeholder.com/300x450?text=No+Cover' }}"
+            class="w-44 rounded-xl shadow object-cover aspect-[2/3]"
+            alt="{{ $buku->judul }}"
         />
 
         <!-- INFO -->
         <div class="flex-1">
             <h2 class="text-2xl font-semibold">
-            Lord Of The Rings
+                {{ $buku->judul }}
             </h2>
 
             <p class="text-gray-600">
-            Budiutomo
+                {{ $buku->penulis }}
             </p>
 
             <!-- RATING -->
             <div class="flex items-center gap-2 mt-2">
-            <div class="flex text-yellow-400 text-lg">
-                ★★★★★
-            </div>
+                <div class="flex text-yellow-400 text-lg">
+                    @php
+                        $avg = round($buku->average_rating);
+                    @endphp
 
-            <span class="text-gray-600 text-sm">
-                4.6
-            </span>
+                    @for($i = 1; $i <= 5; $i++)
+                        @if($i <= $avg)
+                            ★
+                        @else
+                            <span class="text-gray-300">★</span>
+                        @endif
+                    @endfor
+                </div>
 
+                <span class="text-gray-600 text-sm">
+                    {{ $buku->average_rating }} ({{ $buku->total_rating }} rating)
+                </span>
             </div>
 
             <!-- BUTTON -->
@@ -120,7 +130,8 @@
                 Download
             </button>
 
-            <button class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+            <button onclick="switchTab(2); openReviewModal()"
+                class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
                 Berikan Ulasan
             </button>
             </div>
@@ -188,17 +199,23 @@
         <div class="grid grid-cols-3 mt-8 border rounded-xl p-4 text-center">
         <div>
             <p class="text-gray-500 text-sm">File Size</p>
-            <p class="font-semibold">200 MB</p>
+        <p class="font-semibold">
+            @if($buku->file_buku && file_exists(storage_path('app/public/' . $buku->file_buku)))
+                {{ round(filesize(storage_path('app/public/' . $buku->file_buku)) / 1024 / 1024, 2) }} MB
+            @else
+                -
+            @endif
+        </p>
         </div>
 
         <div>
             <p class="text-gray-500 text-sm">Total Copy</p>
-            <p class="font-semibold">Tidak Terbatas</p>
+            <p class="font-semibold">{{ $buku->stok ?? 0 }}</p>
         </div>
 
         <div>
             <p class="text-gray-500 text-sm">Tersedia Copy</p>
-            <p class="font-semibold">Tidak Terbatas</p>
+            <p class="font-semibold">{{ max(($buku->stok ?? 0) - $sedangDipinjam, 0) }}</p>
         </div>
         </div>
 
@@ -206,7 +223,7 @@
         <div class="flex justify-center gap-20 text-center mt-10">
         <div>
             <p class="font-semibold">Telah Dibaca Oleh</p>
-            <p class="text-gray-500">141 Pengguna</p>
+            <p class="text-gray-500">{{ $totalDipinjam }} Pengguna</p>
         </div>
 
         <div>

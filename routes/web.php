@@ -257,8 +257,8 @@ Route::middleware(['auth','role:anggota'])
     Route::get('/buku', [AnggotaBukuController::class, 'index'])->name('buku.index');
     Route::get('/buku/{id}', [AnggotaBukuController::class, 'show'])->name('detail_buku');
 
-    Route::post('/buku/{id}/rating', [BookReviewController::class, 'storeRating'])->name('buku.rating');
-    Route::post('/buku/{id}/comment', [BookReviewController::class, 'storeComment'])->name('buku.comment');
+    Route::post('/buku/{id}/ulasan', [BookReviewController::class, 'store'])
+        ->name('buku.ulasan.store');
 
     // SEARCH
     Route::get('/search', [SearchController::class, 'index'])->name('search');

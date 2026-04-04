@@ -35,6 +35,12 @@ class BookComment extends Model
 
     public function replies()
     {
-        return $this->hasMany(BookComment::class, 'parent_id');
+        return $this->hasMany(BookComment::class, 'parent_id')->with('user');
+    }
+
+    public function rating()
+    {
+        return $this->hasOne(Rating::class, 'user_id', 'user_id')
+                    ->whereColumn('buku_id', 'buku_id');
     }
 }

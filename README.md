@@ -1,4 +1,4 @@
-# Readify - Sistem Perpustakaan Digital
+# SMARTELLIB - Sistem Perpustakaan Digital
 
 Aplikasi perpustakaan digital untuk manajemen e-book dengan fitur berlangganan, pembacaan PDF, dan laporan penjualan.
 

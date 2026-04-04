@@ -128,7 +128,7 @@
 
                 {{-- PINJAM --}}
                 @if($bolehPinjam)
-                    <form action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
+                    <form action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST" class="ajax-action-form">
                         @csrf
                         <button type="submit" class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
                             Pinjam
@@ -138,7 +138,7 @@
 
                 {{-- ANTRI --}}
                 @if($bolehAntri)
-                    <form action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST">
+                    <form action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST" class="ajax-action-form">
                         @csrf
                         <button type="submit" class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
                             Masuk Antrian

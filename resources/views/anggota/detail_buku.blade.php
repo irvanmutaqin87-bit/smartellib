@@ -138,26 +138,51 @@
             <!-- BUTTON -->
             <div class="flex flex-wrap gap-4 mt-5">
 
-                {{-- PINJAM --}}
-                @if($bolehPinjam)
-                    <form id="pinjamForm" action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
+                {{-- KALAU USER SEDANG PINJAM BUKU INI --}}
+                @if($sedangDipinjamUser)
+                    <form id="kembalikanForm" action="{{ route('anggota.peminjaman.kembalikan', $sedangDipinjamUser->id) }}" method="POST">
                         @csrf
                         <button type="submit"
-                            class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                            Pinjam
+                            class="px-6 py-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition">
+                            Kembalikan Buku
                         </button>
                     </form>
-                @endif
 
-                {{-- ANTRI --}}
-                @if($bolehAntri)
-                    <form id="antrianForm" action="{{ route('anggota.antrian.store', $buku->id) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
-                            Masuk Antrian
+                @else
+
+                    {{-- KALAU ADA DENDA BELUM LUNAS --}}
+                    @if(isset($dendaAktif) && $dendaAktif && in_array($dendaAktif->status_denda, ['belum_bayar', 'menunggu_verifikasi', 'ditolak']))
+                        <button type="button"
+                            disabled
+                            class="px-6 py-2 bg-gray-300 text-white rounded-full cursor-not-allowed">
+                            Pinjam Diblokir
                         </button>
-                    </form>
+
+                    @else
+
+                        {{-- KALAU BOLEH PINJAM --}}
+                        @if($bolehPinjam)
+                            <form id="pinjamForm" action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
+                                    Pinjam
+                                </button>
+                            </form>
+                        @endif
+
+                        {{-- KALAU BOLEH ANTRI --}}
+                        @if($bolehAntri)
+                            <form id="antrianForm" action="{{ route('anggota.buku.antrian', $buku->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
+                                    Masuk Antrian
+                                </button>
+                            </form>
+                        @endif
+
+                    @endif
                 @endif
 
                 {{-- BACA --}}

@@ -28,10 +28,15 @@ class DetailBukuController extends Controller
 
         $pengaturan = PengaturanSistem::aktif();
 
+        // =========================
+        // DEFAULT VALUE
+        // =========================
         $pinjamanAktif = null;
-        $sedangDipinjamUser = false; // <- status user ini sedang pinjam buku ini atau tidak
+        $sedangDipinjamUser = null; // object peminjaman aktif user utk buku ini
+        $jumlahPinjamanAktif = 0;
         $punyaDendaAktif = false;
-        $stokHabis = $buku->stok <= 0;
+        $stokHabis = false;
+        $stokTersedia = 0;
         $bolehPinjam = false;
         $bolehAntri = false;
         $bolehKembalikan = false;
@@ -41,25 +46,20 @@ class DetailBukuController extends Controller
         $sudahAntri = false;
         $sudahPernahPinjam = false;
         $sudahMelebihiBatas = false;
-        $jumlahPinjamanAktif = 0;
 
         // =========================
         // DATA ULASAN & RATING
         // =========================
-
-        // Ambil komentar utama
         $ulasan = BookComment::with(['user', 'replies.user'])
             ->where('buku_id', $buku->id)
             ->whereNull('parent_id')
             ->latest()
             ->get();
 
-        // Semua rating buku, keyBy user_id
         $ratingsByUser = Rating::where('buku_id', $buku->id)
             ->get()
             ->keyBy('user_id');
 
-        // Rating user login
         $userRating = null;
         $userComment = null;
 
@@ -75,71 +75,6 @@ class DetailBukuController extends Controller
         }
 
         // =========================
-        // CEK HAK AKSES USER
-        // =========================
-        if ($anggota) {
-            // CEK PINJAMAN AKTIF BUKU INI
-            $pinjamanAktif = Peminjaman::where('anggota_id', $anggota->id)
-                ->where('buku_id', $buku->id)
-                ->whereIn('status', ['dipinjam', 'terlambat'])
-                ->latest()
-                ->first();
-
-            $sedangDipinjamUser = !is_null($pinjamanAktif);
-            $bolehKembalikan = $sedangDipinjamUser;
-
-            // CEK DENDA AKTIF USER
-            $dendaAktif = Denda::with('peminjaman.buku')
-                ->whereHas('peminjaman', function ($q) use ($anggota) {
-                    $q->where('anggota_id', $anggota->id);
-                })
-                ->whereIn('status_denda', ['belum_bayar', 'menunggu_verifikasi', 'ditolak'])
-                ->latest()
-                ->first();
-
-            $punyaDendaAktif = !is_null($dendaAktif);
-
-            // CEK BATAS PINJAMAN
-            $jumlahPinjamanAktif = Peminjaman::where('anggota_id', $anggota->id)
-                ->whereIn('status', ['dipinjam', 'terlambat'])
-                ->count();
-
-            $sudahMelebihiBatas = $jumlahPinjamanAktif >= ($pengaturan->batas_peminjaman ?? 3);
-
-            // CEK ANTRIAN USER
-            $sudahAntri = AntrianPeminjaman::where('anggota_id', $anggota->id)
-                ->where('buku_id', $buku->id)
-                ->whereIn('status', ['menunggu', 'diproses'])
-                ->exists();
-
-            // CEK PERNAH PINJAM
-            $sudahPernahPinjam = Peminjaman::where('anggota_id', $anggota->id)
-                ->where('buku_id', $buku->id)
-                ->where('status', 'dikembalikan')
-                ->exists();
-
-            $bolehUlasan = $sudahPernahPinjam;
-
-            // LOGIKA BOLEH PINJAM
-            $bolehPinjam =
-                !$sedangDipinjamUser &&
-                !$punyaDendaAktif &&
-                !$sudahMelebihiBatas &&
-                $user->status === 'aktif' &&
-                (
-                    ($isDigital) || (!$isDigital && !$stokHabis)
-                );
-
-            $bolehAntri =
-                !$sedangDipinjamUser &&
-                !$punyaDendaAktif &&
-                !$sudahAntri &&
-                !$isDigital &&
-                $stokHabis &&
-                $user->status === 'aktif';
-        }
-
-        // =========================
         // STATISTIK BUKU
         // =========================
         $totalDipinjam = Peminjaman::where('buku_id', $buku->id)->count();
@@ -151,6 +86,82 @@ class DetailBukuController extends Controller
         $totalAntrian = AntrianPeminjaman::where('buku_id', $buku->id)
             ->whereIn('status', ['menunggu', 'diproses'])
             ->count();
+
+        // stok tersedia real
+        $stokTersedia = max(($buku->stok ?? 0) - $sedangDipinjam, 0);
+        $stokHabis = $stokTersedia <= 0;
+
+        // =========================
+        // CEK HAK AKSES USER
+        // =========================
+        if ($anggota && $user) {
+
+            // USER SEDANG PINJAM BUKU INI?
+            $pinjamanAktif = Peminjaman::where('anggota_id', $anggota->id)
+                ->where('buku_id', $buku->id)
+                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->latest()
+                ->first();
+
+            $sedangDipinjamUser = $pinjamanAktif;
+            $bolehKembalikan = !is_null($sedangDipinjamUser);
+
+            // JUMLAH BUKU YANG MASIH DIPINJAM USER
+            $jumlahPinjamanAktif = Peminjaman::where('anggota_id', $anggota->id)
+                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->count();
+
+            $batasPeminjaman = $pengaturan->batas_peminjaman ?? 3;
+            $sudahMelebihiBatas = $jumlahPinjamanAktif >= $batasPeminjaman;
+
+            // DENDA AKTIF
+            $dendaAktif = Denda::with('peminjaman.buku')
+                ->whereHas('peminjaman', function ($q) use ($anggota) {
+                    $q->where('anggota_id', $anggota->id);
+                })
+                ->whereIn('status_denda', ['belum_bayar', 'menunggu_verifikasi', 'ditolak'])
+                ->latest()
+                ->first();
+
+            $punyaDendaAktif = !is_null($dendaAktif);
+
+            // SUDAH MASUK ANTRIAN?
+            $sudahAntri = AntrianPeminjaman::where('anggota_id', $anggota->id)
+                ->where('buku_id', $buku->id)
+                ->whereIn('status', ['menunggu', 'diproses'])
+                ->exists();
+
+            // BOLEH ULASAN?
+            $sudahPernahPinjam = Peminjaman::where('anggota_id', $anggota->id)
+                ->where('buku_id', $buku->id)
+                ->where('status', 'dikembalikan')
+                ->exists();
+
+            $bolehUlasan = $sudahPernahPinjam;
+
+            // =========================
+            // LOGIKA TOMBOL
+            // =========================
+
+            // BOLEH PINJAM
+            $bolehPinjam =
+                !$sedangDipinjamUser &&
+                !$punyaDendaAktif &&
+                !$sudahMelebihiBatas &&
+                $user->status === 'aktif' &&
+                (
+                    $isDigital || $stokTersedia > 0
+                );
+
+            // BOLEH ANTRI
+            $bolehAntri =
+                !$sedangDipinjamUser &&
+                !$punyaDendaAktif &&
+                !$sudahAntri &&
+                !$isDigital &&
+                $stokTersedia <= 0 &&
+                $user->status === 'aktif';
+        }
 
         // =========================
         // DENDA PER HARI
@@ -169,9 +180,14 @@ class DetailBukuController extends Controller
 
         return view('anggota.detail_buku', compact(
             'buku',
+            'pengaturan',
             'pinjamanAktif',
+            'sedangDipinjamUser',
+            'sedangDipinjam',
+            'jumlahPinjamanAktif',
             'punyaDendaAktif',
             'stokHabis',
+            'stokTersedia',
             'bolehPinjam',
             'bolehAntri',
             'bolehKembalikan',
@@ -181,10 +197,7 @@ class DetailBukuController extends Controller
             'sudahAntri',
             'sudahPernahPinjam',
             'sudahMelebihiBatas',
-            'jumlahPinjamanAktif',
-            'pengaturan',
             'bukuSerupa',
-            'sedangDipinjamUser',
 
             // ULASAN & RATING
             'ulasan',
@@ -194,7 +207,6 @@ class DetailBukuController extends Controller
 
             // STATISTIK
             'totalDipinjam',
-            'sedangDipinjam',
             'totalAntrian',
             'dendaPerHari'
         ));

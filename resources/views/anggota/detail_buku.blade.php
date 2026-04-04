@@ -763,7 +763,7 @@ opacity-0 pointer-events-none transition duration-300">
     </div>
 </div>
 
-@endsection
+@push('scripts')
 <script>
     // =========================
     // TAB SWITCH
@@ -787,6 +787,7 @@ opacity-0 pointer-events-none transition duration-300">
 
     function moveIndicator() {
         const activeTab = tabLinks[currentTab];
+        if (!activeTab || !tabIndicator) return;
         tabIndicator.style.width = `${activeTab.offsetWidth}px`;
         tabIndicator.style.left = `${activeTab.offsetLeft}px`;
     }
@@ -804,6 +805,8 @@ opacity-0 pointer-events-none transition duration-300">
         const desc = document.getElementById("descText");
         const btn = document.getElementById("descBtn");
 
+        if (!desc || !btn) return;
+
         desc.classList.toggle("line-clamp-2");
 
         if (desc.classList.contains("line-clamp-2")) {
@@ -819,20 +822,27 @@ opacity-0 pointer-events-none transition duration-300">
     const reviewModal = document.getElementById("reviewModal");
     const reviewCard = document.getElementById("reviewCard");
     const closeReviewModalBtn = document.getElementById("closeReviewModal");
+    const openUlasanModalBtn = document.getElementById("openUlasanModal");
 
     function openReviewModal() {
+        if (!reviewModal || !reviewCard) return;
+
         reviewModal.classList.remove("opacity-0", "pointer-events-none");
         reviewCard.classList.remove("opacity-0", "scale-75", "translate-y-8");
         reviewCard.classList.add("opacity-100", "scale-100", "translate-y-0");
     }
 
     function closeReviewModal() {
+        if (!reviewModal || !reviewCard) return;
+
         reviewModal.classList.add("opacity-0", "pointer-events-none");
         reviewCard.classList.add("opacity-0", "scale-75", "translate-y-8");
         reviewCard.classList.remove("opacity-100", "scale-100", "translate-y-0");
     }
 
+    openUlasanModalBtn?.addEventListener("click", openReviewModal);
     closeReviewModalBtn?.addEventListener("click", closeReviewModal);
+
     reviewModal?.addEventListener("click", (e) => {
         if (e.target === reviewModal) closeReviewModal();
     });
@@ -864,4 +874,100 @@ opacity-0 pointer-events-none transition duration-300">
     });
 
     renderStars(parseInt(ratingInput?.value || 0));
+
+    // =========================
+    // AJAX FORM PINJAM
+    // =========================
+    const pinjamForm = document.getElementById("pinjamForm");
+
+    pinjamForm?.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const button = pinjamForm.querySelector("button[type='submit']");
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = "Memproses...";
+
+        try {
+            const response = await fetch(pinjamForm.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": pinjamForm.querySelector('input[name="_token"]').value,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.showAnggotaToast?.(result.message, "success");
+
+                if (result.reload) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                }
+            } else {
+                window.showAnggotaToast?.(result.message || "Gagal meminjam buku.", "error");
+            }
+        } catch (error) {
+            window.showAnggotaToast?.("Terjadi kesalahan saat meminjam buku.", "error");
+            console.error(error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+
+    // =========================
+    // AJAX FORM ANTRIAN
+    // =========================
+    const antrianForm = document.getElementById("antrianForm");
+
+    antrianForm?.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const button = antrianForm.querySelector("button[type='submit']");
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = "Memproses...";
+
+        try {
+            const response = await fetch(antrianForm.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": antrianForm.querySelector('input[name="_token"]').value,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.showAnggotaToast?.(result.message, "success");
+
+                if (result.reload) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                }
+            } else {
+                window.showAnggotaToast?.(result.message || "Gagal masuk antrian.", "error");
+            }
+        } catch (error) {
+            window.showAnggotaToast?.("Terjadi kesalahan saat masuk antrian.", "error");
+            console.error(error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
 </script>
+@endpush
+
+@endsection
+

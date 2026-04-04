@@ -147,7 +147,7 @@
                 @endif
 
                 {{-- BACA --}}
-                @if($isDigital && $sedangDipinjam)
+                @if($isDigital && $sedangDipinjamUser)
                     <a href="{{ asset('storage/' . $buku->file_buku) }}" target="_blank"
                         class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
                         Baca
@@ -155,7 +155,7 @@
                 @endif
 
                 {{-- DOWNLOAD --}}
-                @if($isDigital && $sedangDipinjam)
+                @if($isDigital && $sedangDipinjamUser)
                     <a href="{{ asset('storage/' . $buku->file_buku) }}" download
                         class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
                         Download
@@ -177,8 +177,8 @@
             </p>
 
             <p class="text-sm text-gray-600 mt-2">
-            Lama peminjaman:
-            <b>7 Hari</b>
+                Lama peminjaman:
+                <b>{{ $pengaturan->lama_peminjaman ?? 7 }} Hari</b>
             </p>
 
             <p class="text-sm text-red-400">

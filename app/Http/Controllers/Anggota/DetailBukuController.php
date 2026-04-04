@@ -184,6 +184,7 @@ class DetailBukuController extends Controller
             'jumlahPinjamanAktif',
             'pengaturan',
             'bukuSerupa',
+            'sedangDipinjamUser',
 
             // ULASAN & RATING
             'ulasan',

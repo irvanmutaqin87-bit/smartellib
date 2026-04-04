@@ -24,6 +24,7 @@ import {
     initCustomAjaxFilterDropdown,
 } from "./ajaxTable";
 import { initAjaxAction, initAjaxForm } from "./ajaxAction";
+import { initAjaxSimpleAction } from "./ajaxSimpleAction";
 
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
@@ -45,6 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initSearch();
     initSidebarActive();
     initAnggotaToast();
+
+    initAjaxSimpleAction();
 
     // =========================
     // AJAX TABLE ANGGOTA

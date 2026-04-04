@@ -336,4 +336,12 @@ class PeminjamanController extends Controller
             ]);
         }
     }
+
+    public function show($id)
+    {
+        $peminjaman = Peminjaman::with(['anggota', 'buku', 'denda'])
+            ->findOrFail($id);
+
+        return view('petugas.peminjaman.show', compact('peminjaman'));
+    }
 }

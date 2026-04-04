@@ -92,11 +92,6 @@
                             Riwayat Buku
                         </button>
 
-                        <button onclick="switchTab(2)"
-                            class="tab-link text-gray-500 hover:text-cyan-600">
-                            Buku Favorit
-                        </button>
-
                         <span id="tabIndicator"
                             class="absolute bottom-0 h-[2px] bg-cyan-500 transition-all duration-300">
                         </span>
@@ -221,39 +216,6 @@
                                         </div>
                                         <h3 class="mt-3 text-sm font-semibold text-gray-800">Sapiens</h3>
                                         <p class="text-xs text-gray-500">Yuval Noah Harari</p>
-                                    </a>
-
-                                </div>
-
-                            </div>
-                        </div>
-
-                    </div>
-
-
-                    <!-- ================= FAVORIT ================= -->
-                    <div class="w-full flex-none isolate min-h-[420px]">
-
-                        <div class="w-full px-6 py-6">
-                            <div class="max-w-7xl mx-auto">
-
-                                <div id="bookContainerFavorit"
-                                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-10">
-
-                                    <a href="#" class="book-card group block cursor-pointer opacity-0 translate-y-6 transition-all duration-500 transform-gpu">
-
-                                        <div class="relative rounded-xl overflow-hidden shadow-sm
-                                                    transition-all duration-500 group-hover:-translate-y-3 group-hover:shadow-xl">
-
-                                            <img src="https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg"
-                                                class="w-full aspect-[2/3] object-cover
-                                                transition duration-500 group-hover:scale-105" />
-
-                                        </div>
-
-                                        <h3 class="mt-3 text-sm font-semibold text-gray-800">Good Habits</h3>
-                                        <p class="text-xs text-gray-500">Wendy Wood</p>
-
                                     </a>
 
                                 </div>

@@ -11,14 +11,12 @@ export function initSearch() {
 
     function showLoading() {
         if (!spinner) return;
-
         spinner.classList.remove("hidden");
         spinner.classList.add("flex");
     }
 
     function hideLoading() {
         if (!spinner) return;
-
         spinner.classList.add("hidden");
         spinner.classList.remove("flex");
     }
@@ -33,28 +31,26 @@ export function initSearch() {
             return;
         }
 
-        // ❗ biar ga spam request
         if (isLoading) return;
         isLoading = true;
 
-        // 🔥 SHOW LOADING
         showLoading();
         container.innerHTML = "";
         emptyText?.classList.add("hidden");
 
-        fetch(`${window.searchUrl}?q=${query}`)
+        fetch(`${window.searchUrl}?q=${encodeURIComponent(query)}`)
             .then((res) => res.json())
             .then((data) => {
                 container.innerHTML = "";
 
-                if (data.length === 0) {
+                if (!data || data.length === 0) {
                     emptyText?.classList.remove("hidden");
                     return;
                 }
 
                 data.forEach((book) => {
                     container.innerHTML += `
-                        <a href="/anggota/detail_buku"
+                        <a href="/anggota/buku/${book.id}"
                           class="book-card group block cursor-pointer">
 
                             <div class="
@@ -93,23 +89,21 @@ export function initSearch() {
                     `;
                 });
             })
-            .catch(() => {
+            .catch((err) => {
+                console.error("Search error:", err);
                 emptyText?.classList.remove("hidden");
             })
             .finally(() => {
-                // 🔥 HIDE LOADING
                 hideLoading();
                 isLoading = false;
             });
     }
 
-    // ENTER
     input.addEventListener("keypress", function (e) {
         if (e.key === "Enter") {
             doSearch();
         }
     });
 
-    // CLICK ICON
     button?.addEventListener("click", doSearch);
 }

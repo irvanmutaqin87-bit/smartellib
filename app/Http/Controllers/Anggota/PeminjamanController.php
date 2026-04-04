@@ -7,6 +7,7 @@ use App\Models\Buku;
 use App\Models\Peminjaman;
 use App\Models\Denda;
 use App\Models\PengaturanSistem;
+use App\Models\AntrianPeminjaman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,11 +18,16 @@ class PeminjamanController extends Controller
     public function pinjam(Request $request, $id)
     {
         $user = Auth::user();
+        $anggota = $user?->anggota;
         $buku = Buku::findOrFail($id);
 
+        if (!$anggota) {
+            return $this->responseHandler($request, false, 'Data anggota tidak ditemukan.');
+        }
+
         // CEK DENDA BELUM LUNAS
-        $dendaAktif = Denda::whereHas('peminjaman', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
+        $dendaAktif = Denda::whereHas('peminjaman', function ($q) use ($anggota) {
+                $q->where('anggota_id', $anggota->id);
             })
             ->whereIn('status_denda', ['belum_bayar', 'menunggu_verifikasi', 'ditolak'])
             ->exists();
@@ -31,9 +37,9 @@ class PeminjamanController extends Controller
         }
 
         // CEK SEDANG PINJAM BUKU INI
-        $sedangPinjamBukuIni = Peminjaman::where('user_id', $user->id)
+        $sedangPinjamBukuIni = Peminjaman::where('anggota_id', $anggota->id)
             ->where('buku_id', $buku->id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->exists();
 
         if ($sedangPinjamBukuIni) {
@@ -41,12 +47,12 @@ class PeminjamanController extends Controller
         }
 
         // BATAS PEMINJAMAN
-        $pengaturan = PengaturanSistem::first();
+        $pengaturan = PengaturanSistem::aktif() ?? PengaturanSistem::first();
         $batasPeminjaman = $pengaturan->batas_peminjaman ?? 3;
         $lamaPeminjaman = $pengaturan->lama_peminjaman ?? 7;
 
-        $jumlahPinjamanAktif = Peminjaman::where('user_id', $user->id)
-            ->where('status', 'dipinjam')
+        $jumlahPinjamanAktif = Peminjaman::where('anggota_id', $anggota->id)
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->count();
 
         if ($jumlahPinjamanAktif >= $batasPeminjaman) {
@@ -55,12 +61,13 @@ class PeminjamanController extends Controller
 
         // CEK STOK TERSEDIA
         $sedangDipinjam = Peminjaman::where('buku_id', $buku->id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->count();
 
         $stokTersedia = ($buku->stok ?? 0) - $sedangDipinjam;
 
-        if ($stokTersedia <= 0) {
+        // Kalau buku fisik dan stok habis → tolak pinjam
+        if (empty($buku->file_buku) && $stokTersedia <= 0) {
             return $this->responseHandler($request, false, 'Stok buku habis. Silakan masuk antrian.');
         }
 
@@ -68,10 +75,11 @@ class PeminjamanController extends Controller
 
         try {
             $peminjaman = Peminjaman::create([
-                'user_id' => $user->id,
+                'anggota_id' => $anggota->id,
                 'buku_id' => $buku->id,
                 'tanggal_pinjam' => now(),
-                'tanggal_jatuh_tempo' => now()->addDays($lamaPeminjaman),
+                'tanggal_mulai' => now()->toDateString(),
+                'tanggal_jatuh_tempo' => now()->addDays($lamaPeminjaman)->toDateString(),
                 'status' => 'dipinjam',
             ]);
 
@@ -87,25 +95,35 @@ class PeminjamanController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->responseHandler($request, false, 'Terjadi kesalahan saat meminjam buku.');
+
+            return $this->responseHandler(
+                $request,
+                false,
+                'Terjadi kesalahan saat meminjam buku: ' . $e->getMessage()
+            );
         }
     }
 
-        public function masukAntrian(Request $request, $id)
+    public function masukAntrian(Request $request, $id)
     {
         $user = Auth::user();
+        $anggota = $user?->anggota;
         $buku = Buku::findOrFail($id);
 
-        $sudahPinjam = Peminjaman::where('user_id', $user->id)
+        if (!$anggota) {
+            return $this->responseHandler($request, false, 'Data anggota tidak ditemukan.');
+        }
+
+        $sudahPinjam = Peminjaman::where('anggota_id', $anggota->id)
             ->where('buku_id', $buku->id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->exists();
 
         if ($sudahPinjam) {
             return $this->responseHandler($request, false, 'Kamu sedang meminjam buku ini.');
         }
 
-        $sudahAntri = \App\Models\AntrianPeminjaman::where('user_id', $user->id)
+        $sudahAntri = AntrianPeminjaman::where('anggota_id', $anggota->id)
             ->where('buku_id', $buku->id)
             ->whereIn('status', ['menunggu', 'diproses'])
             ->exists();
@@ -115,7 +133,7 @@ class PeminjamanController extends Controller
         }
 
         $sedangDipinjam = Peminjaman::where('buku_id', $buku->id)
-            ->where('status', 'dipinjam')
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->count();
 
         $stokTersedia = ($buku->stok ?? 0) - $sedangDipinjam;
@@ -124,54 +142,69 @@ class PeminjamanController extends Controller
             return $this->responseHandler($request, false, 'Stok masih tersedia, silakan pinjam langsung.');
         }
 
-        \App\Models\AntrianPeminjaman::create([
-            'user_id' => $user->id,
+        AntrianPeminjaman::create([
+            'anggota_id' => $anggota->id,
             'buku_id' => $buku->id,
             'status' => 'menunggu',
-            'tanggal_antri' => now(),
+            'posisi_antrian' => AntrianPeminjaman::where('buku_id', $buku->id)->count() + 1,
         ]);
 
         return $this->responseHandler($request, true, 'Berhasil masuk antrian.', true);
     }
 
-        public function kembalikan(Request $request, $id)
+    public function kembalikan(Request $request, $id)
     {
         $user = Auth::user();
+        $anggota = $user?->anggota;
+
+        if (!$anggota) {
+            return $this->responseHandler($request, false, 'Data anggota tidak ditemukan.');
+        }
 
         $peminjaman = Peminjaman::where('id', $id)
-            ->where('user_id', $user->id)
-            ->where('status', 'dipinjam')
+            ->where('anggota_id', $anggota->id)
+            ->whereIn('status', ['dipinjam', 'terlambat'])
             ->firstOrFail();
 
         DB::beginTransaction();
 
         try {
-            $peminjaman->tanggal_kembali = now();
+            // =========================
+            // UPDATE DATA PENGEMBALIAN
+            // =========================
+            $tanggalKembali = now();
+            $peminjaman->tanggal_kembali = $tanggalKembali->toDateString();
             $peminjaman->status = 'dikembalikan';
             $peminjaman->save();
 
-            // CEK TERLAMBAT
-            if (now()->gt($peminjaman->tanggal_jatuh_tempo)) {
-                $hariTerlambat = Carbon::parse($peminjaman->tanggal_jatuh_tempo)
-                    ->diffInDays(now());
+            // =========================
+            // CEK TERLAMBAT + DENDA
+            // =========================
+            $pengaturan = PengaturanSistem::aktif();
 
-                $pengaturan = PengaturanSistem::first();
-                $dendaPerHari = $pengaturan->denda_per_hari ?? 2000;
+            $jatuhTempo = Carbon::parse($peminjaman->tanggal_jatuh_tempo);
+
+            if ($tanggalKembali->greaterThan($jatuhTempo)) {
+                $hariTerlambat = $tanggalKembali->diffInDays($jatuhTempo);
+
+                $jumlahDenda = $hariTerlambat * $pengaturan->denda_per_hari;
 
                 Denda::updateOrCreate(
                     ['peminjaman_id' => $peminjaman->id],
                     [
                         'hari_terlambat' => $hariTerlambat,
-                        'jumlah_denda' => $hariTerlambat * $dendaPerHari,
+                        'jumlah_denda' => $jumlahDenda,
                         'status_denda' => 'belum_bayar',
                     ]
                 );
             }
 
+            // =========================
             // PROSES ANTRIAN OTOMATIS
-            $antrianPertama = \App\Models\AntrianPeminjaman::where('buku_id', $peminjaman->buku_id)
+            // =========================
+            $antrianPertama = AntrianPeminjaman::where('buku_id', $peminjaman->buku_id)
                 ->where('status', 'menunggu')
-                ->orderBy('tanggal_antri', 'asc')
+                ->orderBy('created_at', 'asc')
                 ->first();
 
             if ($antrianPertama) {
@@ -181,15 +214,25 @@ class PeminjamanController extends Controller
 
             DB::commit();
 
-            return $this->responseHandler($request, true, 'Buku berhasil dikembalikan.', true);
+            return $this->responseHandler(
+                $request,
+                true,
+                'Buku berhasil dikembalikan.',
+                true
+            );
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->responseHandler($request, false, 'Terjadi kesalahan saat mengembalikan buku.');
+
+            return $this->responseHandler(
+                $request,
+                false,
+                'Terjadi kesalahan saat mengembalikan buku: ' . $e->getMessage()
+            );
         }
     }
 
-        private function responseHandler(Request $request, $success, $message, $reload = false, $data = [])
+    private function responseHandler(Request $request, $success, $message, $reload = false, $data = [])
     {
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -202,4 +245,6 @@ class PeminjamanController extends Controller
 
         return back()->with($success ? 'success' : 'error', $message);
     }
+
+
 }

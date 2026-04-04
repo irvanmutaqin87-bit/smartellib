@@ -35,7 +35,7 @@ class DendaAnggotaController extends Controller
     // =========================
     // UPLOAD BUKTI PEMBAYARAN
     // =========================
-    public function uploadBukti(Request $request, $id)
+    public function uploadPembayaran(Request $request, $id)
     {
         try {
             $request->validate([

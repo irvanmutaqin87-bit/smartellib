@@ -21,6 +21,7 @@ use App\Http\Controllers\Anggota\DendaAnggotaController;
 use App\Http\Controllers\Petugas\AntrianPeminjamanController;
 use App\Http\Controllers\Anggota\BukuController as AnggotaBukuController;
 use App\Http\Controllers\Anggota\BookReviewController;
+use App\Http\Controllers\Anggota\BerandaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -201,6 +202,7 @@ Route::middleware(['auth','role:petugas'])
 
     // PEMINJAMAN
     Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
+    Route::get('/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('peminjaman.show');
     Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::post('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
     Route::post('/peminjaman/update-terlambat', [PeminjamanController::class, 'updateTerlambatMassal'])->name('peminjaman.updateTerlambat');
@@ -224,62 +226,63 @@ Route::middleware(['auth','role:petugas'])
 // ======================
 // ANGGOTA
 // ======================
-Route::middleware(['auth','role:anggota'])
+Route::middleware(['auth', 'role:anggota'])
     ->prefix('anggota')
     ->name('anggota.')
     ->group(function () {
 
-    Route::get('/beranda', function () {
-        return view('anggota.beranda');
-    })->name('beranda');
+        // =========================
+        // BERANDA
+        // =========================
+        Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda');
 
-    Route::get('/buku', function () {
-        return view('anggota.buku');
-    })->name('buku');
+        // =========================
+        // KATALOG BUKU
+        // =========================
+        Route::get('/buku', [AnggotaBukuController::class, 'index'])->name('buku.index');
 
-    Route::get('/data-profile', function () {
-        return view('anggota.data_profile');
-    })->name('data_profile');
+        // =========================
+        // DETAIL BUKU
+        // =========================
+        Route::get('/buku/{id}', [DetailBukuController::class, 'show'])->name('buku.detail');
 
-    Route::get('/profile', function () {
-        return view('anggota.profile');
-    })->name('profile');
+        // =========================
+        // ULASAN BUKU
+        // =========================
+        Route::post('/buku/{id}/ulasan', [BookReviewController::class, 'store'])
+            ->name('buku.ulasan.store');
 
-    Route::get('/notifikasi', function () {
-        return view('anggota.notifikasi');
-    })->name('notifikasi');
+        // =========================
+        // PEMINJAMAN ANGGOTA
+        // =========================
+        Route::post('/buku/{id}/pinjam', [AnggotaPeminjamanController::class, 'pinjam'])->name('buku.pinjam');
+        Route::post('/buku/{id}/antrian', [AnggotaPeminjamanController::class, 'masukAntrian'])->name('buku.antrian');
+        Route::post('/peminjaman/{id}/kembalikan', [AnggotaPeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
 
-    Route::get('/rak', function () {
-        return view('anggota.rak');
-    })->name('rak');
+        // =========================
+        // PROFILE
+        // =========================
+        Route::get('/data-profile', function () {
+            return view('anggota.data_profile');
+        })->name('data_profile');
 
-    //katalogbuku
-    Route::get('/buku', [AnggotaBukuController::class, 'index'])->name('buku.index');
-    Route::get('/buku/{id}', [AnggotaBukuController::class, 'show'])->name('detail_buku');
+        Route::get('/profile', function () {
+            return view('anggota.profile');
+        })->name('profile');
 
-    Route::post('/buku/{id}/ulasan', [BookReviewController::class, 'store'])
-        ->name('buku.ulasan.store');
+        Route::get('/rak', function () {
+            return view('anggota.rak');
+        })->name('rak');
 
-    // SEARCH
-    Route::get('/search', [SearchController::class, 'index'])->name('search');
-    Route::get('/search/query', [SearchController::class, 'search'])->name('search.query');
+        // =========================
+        // SEARCH
+        // =========================
+        Route::get('/search', [SearchController::class, 'index'])->name('search');
+        Route::get('/search/query', [SearchController::class, 'search'])->name('search.query');
 
-    // =========================
-    // DETAIL BUKU
-    // =========================
-    Route::get('/buku/{id}', [DetailBukuController::class, 'show'])->name('buku.detail');
-
-    // =========================
-    // PEMINJAMAN ANGGOTA
-    // =========================
-    Route::post('/buku/{id}/pinjam', [AnggotaPeminjamanController::class, 'pinjam'])->name('buku.pinjam');
-    Route::post('/buku/{id}/antrian', [AnggotaPeminjamanController::class, 'masukAntrian'])->name('buku.antrian');
-    Route::post('/peminjaman/{id}/kembalikan', [AnggotaPeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
-
-    // =========================
-    // DENDA ANGGOTA
-    // =========================
-    Route::get('/denda', [DendaAnggotaController::class, 'index'])->name('denda.index');
-    Route::post('/denda/{id}/upload-pembayaran', [DendaAnggotaController::class, 'uploadPembayaran'])->name('denda.uploadPembayaran');
-
-});
+        // =========================
+        // DENDA ANGGOTA
+        // =========================
+        Route::get('/denda', [DendaAnggotaController::class, 'index'])->name('denda.index');
+        Route::post('/denda/{id}/upload-pembayaran', [DendaAnggotaController::class, 'uploadPembayaran'])->name('denda.uploadPembayaran');
+    });

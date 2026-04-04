@@ -1,55 +1,67 @@
 @forelse($data as $index => $item)
 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-    <td class="px-5 py-4 text-slate-600 align-top">
+
+    <!-- NO -->
+    <td class="px-5 py-4 text-slate-600">
         {{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- ANGGOTA -->
+    <td class="px-5 py-4">
         <div class="font-medium text-slate-800">
-            {{ $item->anggota->nama_lengkap ?? '-' }}
-        </div>
-        <div class="text-xs text-slate-500 mt-1">
-            NIS: {{ $item->anggota->nis ?? '-' }}
+            {{ $item->anggota->user->nama ?? '-' }}
         </div>
     </td>
 
-    <td class="px-5 py-4 align-top">
-        <div class="font-medium text-slate-800">
-            {{ $item->buku->judul ?? '-' }}
-        </div>
-        <div class="text-xs text-slate-500 mt-1">
-            {{ $item->buku->kode_buku ?? '-' }}
+    <!-- BUKU -->
+    <td class="px-5 py-4">
+        <div class="flex items-center gap-3">
+
+            <div class="w-12 h-16 bg-slate-100 rounded-lg overflow-hidden border">
+                @if($item->buku->cover)
+                    <img src="{{ asset('storage/' . $item->buku->cover) }}"
+                         class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                        No Img
+                    </div>
+                @endif
+            </div>
+
+            <div>
+                <div class="font-medium text-slate-800">
+                    {{ $item->buku->judul ?? '-' }}
+                </div>
+                <div class="text-xs text-slate-500">
+                    {{ $item->buku->kode_buku ?? '-' }}
+                </div>
+            </div>
+
         </div>
     </td>
 
-    <td class="px-5 py-4 text-slate-600 align-top">
+    <!-- TANGGAL -->
+    <td class="px-5 py-4 text-slate-600">
         {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }}
     </td>
 
-    <td class="px-5 py-4 text-slate-600 align-top">
+    <td class="px-5 py-4 text-slate-600">
         {{ \Carbon\Carbon::parse($item->tanggal_jatuh_tempo)->format('d M Y') }}
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- STATUS -->
+    <td class="px-5 py-4">
         @if($item->status === 'dipinjam')
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100">
-                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                Dipinjam
-            </span>
+            <span class="px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700">Dipinjam</span>
         @elseif($item->status === 'dikembalikan')
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                Dikembalikan
-            </span>
-        @elseif($item->status === 'terlambat')
-            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-100">
-                <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                Terlambat
-            </span>
+            <span class="px-3 py-1 text-xs rounded-full bg-emerald-100 text-emerald-700">Dikembalikan</span>
+        @else
+            <span class="px-3 py-1 text-xs rounded-full bg-rose-100 text-rose-700">Terlambat</span>
         @endif
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- DENDA -->
+    <td class="px-5 py-4">
         @if($item->denda)
             <span class="text-red-500 font-semibold">
                 Rp {{ number_format($item->denda->jumlah_denda, 0, ',', '.') }}
@@ -59,34 +71,19 @@
         @endif
     </td>
 
-    <td class="px-5 py-4 text-center align-top">
-        @if(in_array($item->status, ['dipinjam', 'terlambat']))
-            <button type="button"
-                class="ajaxAction px-4 py-2 rounded-xl bg-cyan-900/80 hover:bg-cyan-800 text-white text-xs font-medium transition shadow-sm"
-                data-url="{{ route('petugas.peminjaman.kembalikan', $item->id) }}"
-                data-method="POST"
-                data-confirm="Yakin ingin mengembalikan buku ini?">
-                Kembalikan
-            </button>
-        @else
-            <span class="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-medium">
-                Selesai
-            </span>
-        @endif
+    <!-- AKSI -->
+    <td class="px-5 py-4 text-center">
+        <a href="{{ route('petugas.peminjaman.show', $item->id) }}"
+           class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition shadow-sm">
+            Detail
+        </a>
     </td>
+
 </tr>
 @empty
 <tr>
-    <td colspan="8" class="px-5 py-12 text-center">
-        <div class="flex flex-col items-center justify-center gap-2">
-            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <svg class="w-7 h-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6a2 2 0 012-2z" />
-                </svg>
-            </div>
-            <p class="text-slate-500 font-medium">Tidak ada data peminjaman ditemukan.</p>
-            <p class="text-slate-400 text-sm">Coba ubah pencarian atau filter status.</p>
-        </div>
+    <td colspan="8" class="px-5 py-12 text-center text-slate-400">
+        Tidak ada data peminjaman.
     </td>
 </tr>
 @endforelse

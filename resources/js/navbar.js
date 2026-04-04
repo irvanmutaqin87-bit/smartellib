@@ -30,7 +30,7 @@ export function initNavbar() {
     // =========================
 
     window.goToSearch = function () {
-        window.location.href = "/search";
+        window.location.href = "/anggota/search";
     };
 
     window.goBack = function () {

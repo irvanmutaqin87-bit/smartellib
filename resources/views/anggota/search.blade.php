@@ -101,9 +101,4 @@
 
 </section>
 
-<!-- ================= ROUTE KE JS ================= -->
-<script>
-    window.searchUrl = "{{ route('search.query') }}";
-</script>
-
 @endsection

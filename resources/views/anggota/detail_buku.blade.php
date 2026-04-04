@@ -6,22 +6,23 @@
 
 @if(session('success'))
     <div id="toast"
-        class="fixed top-6 right-6 z-[9999]
-        px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium
-        bg-emerald-500
-        opacity-0 scale-75 transition-all duration-300">
+        class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999]
+        px-6 py-3 rounded-2xl shadow-xl text-sm font-medium
+        backdrop-blur-md border
+        opacity-0 scale-90 transition-all duration-300">
         {{ session('success') }}
     </div>
 @endif
 
 @if(session('error'))
-    <div id="toast"
-        class="fixed top-6 right-6 z-[9999]
-        px-5 py-3 rounded-2xl shadow-2xl text-white text-sm font-medium
-        bg-red-500
-        opacity-0 scale-75 transition-all duration-300">
-        {{ session('error') }}
-    </div>
+<div id="toast"
+    class="fixed top-6 left-1/2 -translate-x-1/2 z-[9999]
+    px-6 py-3 rounded-2xl shadow-xl text-sm font-medium
+    bg-red-500/20 text-red-700 border border-red-300
+    backdrop-blur-md
+    opacity-0 scale-90 transition-all duration-300">
+    {{ session('error') }}
+</div>
 @endif
 
     <section class="bg-white py-10 flex justify-center">
@@ -180,6 +181,13 @@
                                     Masuk Antrian
                                 </button>
                             </form>
+                        @endif
+
+                        {{-- FALLBACK --}}
+                        @if(!$bolehPinjam && !$bolehAntri && !$sedangDipinjamUser)
+                            <div class="text-red-500 text-sm mt-2">
+                                Tidak dapat melakukan peminjaman atau antrian.
+                            </div>
                         @endif
 
                     @endif
@@ -646,6 +654,7 @@ opacity-0 pointer-events-none transition duration-300">
     opacity-0 scale-75 translate-y-8
     transition-all duration-300 ease-out">
 
+        <!-- HEADER -->
         <div class="text-center mb-6">
             <div class="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-4 shadow-inner">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -663,6 +672,21 @@ opacity-0 pointer-events-none transition duration-300">
             </p>
         </div>
 
+        <!-- 🔥 TAMBAHAN QR PEMBAYARAN -->
+        @if($pengaturan && $pengaturan->qr_pembayaran)
+            <img src="{{ asset('storage/' . $pengaturan->qr_pembayaran) }}"
+                class="w-40 mx-auto mb-4 rounded-lg shadow">
+        @endif
+
+        <p class="text-sm text-center text-gray-600">
+            {{ $pengaturan->metode_pembayaran_denda ?? '-' }}
+        </p>
+
+        <p class="text-xs text-center text-gray-500 mb-4">
+            {{ $pengaturan->catatan_pembayaran ?? '-' }}
+        </p>
+
+        <!-- INFO DENDA -->
         <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 mb-5">
             <div class="flex justify-between text-sm text-slate-600 mb-2">
                 <span>Hari Terlambat</span>
@@ -670,11 +694,14 @@ opacity-0 pointer-events-none transition duration-300">
             </div>
             <div class="flex justify-between text-sm text-slate-600">
                 <span>Total Denda</span>
-                <span class="font-semibold text-red-500">Rp {{ number_format($dendaAktif->jumlah_denda, 0, ',', '.') }}</span>
+                <span class="font-semibold text-red-500">
+                    Rp {{ number_format($dendaAktif->jumlah_denda, 0, ',', '.') }}
+                </span>
             </div>
         </div>
 
-        <form action="{{ route('anggota.denda.uploadBukti', $dendaAktif->id) }}" method="POST" enctype="multipart/form-data">
+        <!-- FORM -->
+        <form action="{{ route('anggota.denda.uploadPembayaran', $dendaAktif->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
@@ -712,10 +739,11 @@ opacity-0 pointer-events-none transition duration-300">
                 </button>
             </div>
         </form>
+
     </div>
 </div>
-
 @endif
+
 <!-- MODAL ULASAN -->
 <div id="reviewModal"
 class="fixed inset-0 z-[70] flex items-center justify-center
@@ -992,6 +1020,55 @@ opacity-0 pointer-events-none transition duration-300">
         }
     });
 </script>
+
+<script>
+    // =========================
+    // AJAX FORM KEMBALIKAN
+    // =========================
+    const kembalikanForm = document.getElementById("kembalikanForm");
+
+    kembalikanForm?.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const button = kembalikanForm.querySelector("button[type='submit']");
+        const originalText = button.innerHTML;
+
+        button.disabled = true;
+        button.innerHTML = "Memproses...";
+
+        try {
+            const response = await fetch(kembalikanForm.action, {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": kembalikanForm.querySelector('input[name="_token"]').value,
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                window.showAnggotaToast?.(result.message, "success");
+
+                if (result.reload) {
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1200);
+                }
+            } else {
+                window.showAnggotaToast?.(result.message || "Gagal mengembalikan buku.", "error");
+            }
+        } catch (error) {
+            window.showAnggotaToast?.("Terjadi kesalahan saat mengembalikan buku.", "error");
+            console.error(error);
+        } finally {
+            button.disabled = false;
+            button.innerHTML = originalText;
+        }
+    });
+</script>
+
 @endpush
 
 @endsection

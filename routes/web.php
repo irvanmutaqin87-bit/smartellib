@@ -261,7 +261,7 @@ Route::middleware(['auth','role:anggota'])
     Route::post('/buku/{id}/comment', [BookReviewController::class, 'storeComment'])->name('buku.comment');
 
     // SEARCH
-    Route::get('/search', [SearchController::class, 'index'])->name('anggota.search');
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
     Route::get('/search/query', [SearchController::class, 'search'])->name('search.query');
 
     // =========================

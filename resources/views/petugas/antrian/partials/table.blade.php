@@ -1,34 +1,59 @@
 @forelse($data as $index => $item)
 <tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-    <td class="px-5 py-4 text-slate-600 align-top">
+
+    <!-- NO -->
+    <td class="px-5 py-4 text-slate-600">
         {{ ($data->currentPage() - 1) * $data->perPage() + $index + 1 }}
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- ANGGOTA -->
+    <td class="px-5 py-4">
         <div class="font-medium text-slate-800">
-            {{ $item->anggota->nama_lengkap ?? '-' }}
-        </div>
-        <div class="text-xs text-slate-500 mt-1">
-            NIS: {{ $item->anggota->nis ?? '-' }}
+            {{ $item->anggota->user->nama ?? $item->anggota->nama_lengkap ?? '-' }}
         </div>
     </td>
 
-    <td class="px-5 py-4 align-top">
-        <div class="font-medium text-slate-800">
-            {{ $item->buku->judul ?? '-' }}
-        </div>
-        <div class="text-xs text-slate-500 mt-1">
-            {{ $item->buku->kode_buku ?? '-' }}
+    <!-- BUKU -->
+    <td class="px-5 py-4">
+        <div class="flex items-center gap-3">
+
+            <div class="w-12 h-16 bg-slate-100 rounded-lg overflow-hidden border">
+                @if($item->buku->cover)
+                    <img src="{{ asset('storage/' . $item->buku->cover) }}"
+                         class="w-full h-full object-cover">
+                @else
+                    <div class="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                        No Img
+                    </div>
+                @endif
+            </div>
+
+            <div>
+                <div class="font-medium text-slate-800">
+                    {{ $item->buku->judul ?? '-' }}
+                </div>
+                <div class="text-xs text-slate-500">
+                    {{ $item->buku->kode_buku ?? '-' }}
+                </div>
+            </div>
+
         </div>
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- POSISI -->
+    <td class="px-5 py-4">
         <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-            #{{ $item->posisi_antrian }}
+            {{ $item->posisi_antrian }}
         </span>
     </td>
 
-    <td class="px-5 py-4 align-top">
+    <!-- TANGGAL -->
+    <td class="px-5 py-4 text-slate-600">
+        {{ $item->created_at ? $item->created_at->format('d M Y') : '-' }}
+    </td>
+
+    <!-- STATUS -->
+    <td class="px-5 py-4">
         @if($item->status === 'menunggu')
             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700 border border-yellow-100">
                 <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
@@ -52,71 +77,47 @@
         @endif
     </td>
 
-    <td class="px-5 py-4 text-slate-600 align-top">
-        {{ $item->created_at ? $item->created_at->format('d M Y') : '-' }}
-    </td>
+    <!-- AKSI -->
+    <td class="px-5 py-4 text-center">
+        <div class="relative inline-block">
 
-    <td class="px-5 py-4 text-center align-top">
-        <div class="flex items-center justify-center gap-2 flex-wrap">
-
-            @if($item->status === 'menunggu')
-                <button type="button"
-                    class="ajaxAction px-4 py-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium transition shadow-sm"
-                    data-url="{{ route('petugas.antrian.proses', $item->id) }}"
-                    data-method="POST"
-                    data-confirm="Yakin ingin memproses antrian ini?">
-                    Proses
-                </button>
-
-                <button type="button"
-                    class="ajaxAction px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition shadow-sm"
-                    data-url="{{ route('petugas.antrian.batalkan', $item->id) }}"
-                    data-method="POST"
-                    data-confirm="Yakin ingin membatalkan antrian ini?">
-                    Batalkan
-                </button>
-            @endif
-
-            @if($item->status === 'diproses')
-                <button type="button"
-                    class="ajaxAction px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-medium transition shadow-sm"
-                    data-url="{{ route('petugas.antrian.selesai', $item->id) }}"
-                    data-method="POST"
-                    data-confirm="Yakin ingin menyelesaikan antrian dan meminjamkan buku?">
-                    Selesaikan
-                </button>
-
-                <button type="button"
-                    class="ajaxAction px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-medium transition shadow-sm"
-                    data-url="{{ route('petugas.antrian.batalkan', $item->id) }}"
-                    data-method="POST"
-                    data-confirm="Yakin ingin membatalkan antrian ini?">
-                    Batalkan
-                </button>
-            @endif
-
+            <!-- BUTTON -->
             <button type="button"
-                class="ajaxAction px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium transition shadow-sm"
-                data-url="{{ route('petugas.antrian.destroy', $item->id) }}"
-                data-method="DELETE"
-                data-confirm="Yakin ingin menghapus data antrian ini?">
-                Hapus
+                class="bookActionBtn w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-100 transition text-slate-700 text-2xl leading-none">
+                ⋯
             </button>
+
+            <!-- DROPDOWN -->
+            <div class="bookActionDropdown absolute right-full top-1/2 -translate-y-1/2 mr-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50
+                origin-right scale-95 opacity-0 translate-x-2 pointer-events-none transition-all duration-300">
+
+                <!-- DETAIL -->
+                <a href="{{ route('petugas.antrian.show', $item->id) }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-700 hover:bg-slate-50 transition">
+                    Detail Antrian
+                </a>
+
+                @if($item->status === 'selesai')
+                    <button 
+                        type="button"
+                        class="ajaxAction w-full text-left px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition"
+                        data-url="{{ route('petugas.antrian.destroy', $item->id) }}"
+                        data-method="DELETE"
+                        data-confirm="Hapus data antrian ini?"
+                    >
+                        Hapus Data
+                    </button>
+                @endif
+
+            </div>
         </div>
     </td>
+
 </tr>
 @empty
 <tr>
-    <td colspan="7" class="px-5 py-12 text-center">
-        <div class="flex flex-col items-center justify-center gap-2">
-            <div class="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
-                <svg class="w-7 h-7 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10m-12 9h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v11a2 2 0 002 2z" />
-                </svg>
-            </div>
-            <p class="text-slate-500 font-medium">Tidak ada data antrian peminjaman ditemukan.</p>
-            <p class="text-slate-400 text-sm">Coba ubah pencarian atau filter status.</p>
-        </div>
+    <td colspan="7" class="px-5 py-12 text-center text-slate-400">
+        Tidak ada data antrian peminjaman.
     </td>
 </tr>
 @endforelse

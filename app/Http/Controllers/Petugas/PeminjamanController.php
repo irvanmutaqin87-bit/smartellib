@@ -20,19 +20,18 @@ class PeminjamanController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $query = Peminjaman::with(['anggota', 'buku', 'denda']);
+        $query = Peminjaman::with(['anggota.user', 'buku', 'denda']);
 
         // SEARCH
         if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
-                $q->whereHas('anggota', function ($anggota) use ($search) {
-                    $anggota->where('nama_lengkap', 'like', "%{$search}%")
-                            ->orWhere('nis', 'like', "%{$search}%");
+                $q->whereHas('anggota.user', function ($user) use ($search) {
+                    $user->where('nama', 'like', "%{$search}%");
                 })->orWhereHas('buku', function ($buku) use ($search) {
                     $buku->where('judul', 'like', "%{$search}%")
-                        ->orWhere('kode_buku', 'like', "%{$search}%");
+                         ->orWhere('kode_buku', 'like', "%{$search}%");
                 });
             });
         }
@@ -276,6 +275,48 @@ class PeminjamanController extends Controller
     }
 
     // =========================
+    // HAPUS DATA PEMINJAMAN
+    // Hanya boleh jika status = dikembalikan
+    // =========================
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $peminjaman = Peminjaman::with('denda')->findOrFail($id);
+
+            if ($peminjaman->status !== 'dikembalikan') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya data peminjaman yang sudah dikembalikan yang boleh dihapus.',
+                ], 422);
+            }
+
+            // Hapus denda jika ada
+            if ($peminjaman->denda) {
+                $peminjaman->denda->delete();
+            }
+
+            $peminjaman->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data peminjaman berhasil dihapus.',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data peminjaman.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // =========================
     // UPDATE STATUS TERLAMBAT OTOMATIS
     // =========================
     public function updateTerlambatMassal()
@@ -339,7 +380,7 @@ class PeminjamanController extends Controller
 
     public function show($id)
     {
-        $peminjaman = Peminjaman::with(['anggota', 'buku', 'denda'])
+        $peminjaman = Peminjaman::with(['anggota.user', 'buku', 'denda'])
             ->findOrFail($id);
 
         return view('petugas.peminjaman.show', compact('peminjaman'));

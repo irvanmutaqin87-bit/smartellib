@@ -16,14 +16,16 @@ class AntrianPeminjamanController extends Controller
     // =========================
     public function index(Request $request)
     {
-        $query = AntrianPeminjaman::with(['anggota', 'buku']);
+        $query = AntrianPeminjaman::with(['anggota.user', 'buku']);
 
         // SEARCH
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-                $q->whereHas('anggota', function ($anggota) use ($search) {
+                $q->whereHas('anggota.user', function ($anggota) use ($search) {
+                    $anggota->where('nama', 'like', "%{$search}%");
+                })->orWhereHas('anggota', function ($anggota) use ($search) {
                     $anggota->where('nama_lengkap', 'like', "%{$search}%")
                             ->orWhere('nis', 'like', "%{$search}%");
                 })->orWhereHas('buku', function ($buku) use ($search) {
@@ -38,7 +40,6 @@ class AntrianPeminjamanController extends Controller
             $query->where('status', $request->statusFilter);
         }
 
-        /** @var \Illuminate\Pagination\LengthAwarePaginator $data */
         $data = $query->latest()->paginate(10);
 
         if ($request->ajax()) {
@@ -50,6 +51,19 @@ class AntrianPeminjamanController extends Controller
         }
 
         return view('petugas.antrian.index', compact('data'));
+    }
+
+    // =========================
+    // DETAIL ANTRIAN
+    // =========================
+    public function show($id)
+    {
+        $antrian = AntrianPeminjaman::with([
+            'anggota.user',
+            'buku',
+        ])->findOrFail($id);
+
+        return view('petugas.antrian.show', compact('antrian'));
     }
 
     // =========================
@@ -69,7 +83,6 @@ class AntrianPeminjamanController extends Controller
                 ], 422);
             }
 
-            // Cegah ada 2 antrian diproses untuk buku yang sama
             $sudahAdaDiproses = AntrianPeminjaman::where('buku_id', $antrian->buku_id)
                 ->where('status', 'diproses')
                 ->where('id', '!=', $antrian->id)
@@ -106,113 +119,143 @@ class AntrianPeminjamanController extends Controller
     // =========================
     // SELESAIKAN ANTRIAN → BUAT PEMINJAMAN
     // =========================
-  public function selesai($id)
-  {
-      DB::beginTransaction();
+    public function selesai($id)
+    {
+        DB::beginTransaction();
 
-      try {
-          $antrian = AntrianPeminjaman::with(['anggota', 'buku'])->findOrFail($id);
-          $pengaturan = \App\Models\PengaturanSistem::aktif();
+        try {
+            $antrian = AntrianPeminjaman::with(['anggota', 'buku'])->findOrFail($id);
+            $pengaturan = \App\Models\PengaturanSistem::aktif();
 
-          if ($antrian->status !== 'diproses') {
-              return response()->json([
-                  'success' => false,
-                  'message' => 'Antrian belum siap diselesaikan.',
-              ], 422);
-          }
+            if ($antrian->status !== 'diproses') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Antrian belum siap diselesaikan.',
+                ], 422);
+            }
 
-          if ($antrian->buku->stok <= 0) {
-              return response()->json([
-                  'success' => false,
-                  'message' => 'Stok buku masih habis.',
-              ], 422);
-          }
+            if ($antrian->buku->stok <= 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stok buku masih habis.',
+                ], 422);
+            }
 
-          // =========================
-          // CEK DENDA AKTIF
-          // =========================
-          $punyaDendaAktif = \App\Models\Denda::whereHas('peminjaman', function ($q) use ($antrian) {
-              $q->where('anggota_id', $antrian->anggota_id);
-          })->whereIn('status_denda', ['belum_bayar', 'menunggu_verifikasi', 'ditolak'])
-            ->exists();
-
-          if ($punyaDendaAktif) {
-              return response()->json([
-                  'success' => false,
-                  'message' => 'Anggota masih memiliki denda aktif.',
-              ], 422);
-          }
-
-          // =========================
-          // CEK BATAS PEMINJAMAN
-          // =========================
-          $jumlahPinjamanAktif = Peminjaman::where('anggota_id', $antrian->anggota_id)
-              ->whereIn('status', ['dipinjam', 'terlambat'])
-              ->count();
-
-          if ($jumlahPinjamanAktif >= $pengaturan->batas_peminjaman) {
-              return response()->json([
-                  'success' => false,
-                  'message' => 'Anggota sudah mencapai batas maksimal peminjaman.',
-              ], 422);
-          }
-
-          // =========================
-          // CEK PINJAMAN AKTIF BUKU INI
-          // =========================
-          $cekAktif = Peminjaman::where('anggota_id', $antrian->anggota_id)
-              ->where('buku_id', $antrian->buku_id)
-              ->whereIn('status', ['dipinjam', 'terlambat'])
+            // =========================
+            // CEK DENDA AKTIF
+            // =========================
+            $punyaDendaAktif = \App\Models\Denda::whereHas('peminjaman', function ($q) use ($antrian) {
+                $q->where('anggota_id', $antrian->anggota_id);
+            })->whereIn('status_denda', ['belum_bayar', 'menunggu_verifikasi', 'ditolak'])
               ->exists();
 
-          if ($cekAktif) {
-              return response()->json([
-                  'success' => false,
-                  'message' => 'Anggota masih memiliki pinjaman aktif untuk buku ini.',
-              ], 422);
-          }
+            if ($punyaDendaAktif) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anggota masih memiliki denda aktif.',
+                ], 422);
+            }
 
-          // =========================
-          // BUAT PEMINJAMAN BARU
-          // =========================
-          $tanggalMulai = Carbon::today();
-          $lamaHari = $pengaturan->lama_peminjaman;
+            // =========================
+            // CEK BATAS PEMINJAMAN
+            // =========================
+            $jumlahPinjamanAktif = Peminjaman::where('anggota_id', $antrian->anggota_id)
+                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->count();
 
-          Peminjaman::create([
-              'anggota_id' => $antrian->anggota_id,
-              'buku_id' => $antrian->buku_id,
-              'tanggal_pinjam' => now(),
-              'tanggal_mulai' => $tanggalMulai,
-              'tanggal_jatuh_tempo' => $tanggalMulai->copy()->addDays($lamaHari),
-              'status' => 'dipinjam',
-          ]);
+            if ($jumlahPinjamanAktif >= $pengaturan->batas_peminjaman) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anggota sudah mencapai batas maksimal peminjaman.',
+                ], 422);
+            }
 
-          // =========================
-          // KURANGI STOK
-          // =========================
-          $antrian->buku->decrement('stok');
+            // =========================
+            // CEK PINJAMAN AKTIF BUKU INI
+            // =========================
+            $cekAktif = Peminjaman::where('anggota_id', $antrian->anggota_id)
+                ->where('buku_id', $antrian->buku_id)
+                ->whereIn('status', ['dipinjam', 'terlambat'])
+                ->exists();
 
-          // =========================
-          // UPDATE ANTRIAN
-          // =========================
-          $antrian->update([
-              'status' => 'selesai',
-          ]);
+            if ($cekAktif) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anggota masih memiliki pinjaman aktif untuk buku ini.',
+                ], 422);
+            }
 
-          DB::commit();
+            // =========================
+            // BUAT PEMINJAMAN BARU
+            // =========================
+            $tanggalMulai = Carbon::today();
+            $lamaHari = $pengaturan->lama_peminjaman;
 
-          return response()->json([
-              'success' => true,
-              'message' => 'Antrian berhasil diselesaikan dan buku dipinjamkan.',
-          ]);
-      } catch (\Throwable $e) {
-          DB::rollBack();
+            Peminjaman::create([
+                'anggota_id' => $antrian->anggota_id,
+                'buku_id' => $antrian->buku_id,
+                'tanggal_pinjam' => now(),
+                'tanggal_mulai' => $tanggalMulai,
+                'tanggal_jatuh_tempo' => $tanggalMulai->copy()->addDays($lamaHari),
+                'status' => 'dipinjam',
+            ]);
 
-          return response()->json([
-              'success' => false,
-              'message' => 'Gagal menyelesaikan antrian.',
-              'error' => $e->getMessage(),
-          ], 500);
-      }
-  }
+            // =========================
+            // KURANGI STOK
+            // =========================
+            $antrian->buku->decrement('stok');
+
+            // =========================
+            // UPDATE ANTRIAN
+            // =========================
+            $antrian->update([
+                'status' => 'selesai',
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Antrian berhasil diselesaikan dan buku dipinjamkan.',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menyelesaikan antrian.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // =========================
+    // HAPUS DATA ANTRIAN
+    // =========================
+    public function destroy($id)
+    {
+        try {
+            $antrian = AntrianPeminjaman::findOrFail($id);
+
+            if ($antrian->status !== 'selesai') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data antrian hanya bisa dihapus jika statusnya selesai.',
+                ], 422);
+            }
+
+            $antrian->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data antrian berhasil dihapus.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data antrian.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }

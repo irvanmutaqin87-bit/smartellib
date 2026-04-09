@@ -64,12 +64,31 @@ class PeminjamanController extends Controller
             ->whereIn('status', ['dipinjam', 'terlambat'])
             ->count();
 
-        $stokTersedia = ($buku->stok ?? 0) - $sedangDipinjam;
+        $stokTersedia = max(0, ($buku->stok ?? 0) - $sedangDipinjam);
 
         // Kalau buku fisik dan stok habis → tolak pinjam
-        if (empty($buku->file_buku) && $stokTersedia <= 0) {
-            return $this->responseHandler($request, false, 'Stok buku habis. Silakan masuk antrian.');
+    if ($stokTersedia <= 0) {
+
+        // CEK SUDAH ANTRI
+        $sudahAntri = AntrianPeminjaman::where('anggota_id', $anggota->id)
+            ->where('buku_id', $buku->id)
+            ->whereIn('status', ['menunggu', 'diproses'])
+            ->exists();
+
+        if ($sudahAntri) {
+            return $this->responseHandler($request, false, 'Kamu sudah ada di antrian.');
         }
+
+        // MASUK ANTRIAN
+        AntrianPeminjaman::create([
+            'anggota_id' => $anggota->id,
+            'buku_id' => $buku->id,
+            'status' => 'menunggu',
+            'posisi_antrian' => AntrianPeminjaman::where('buku_id', $buku->id)->count() + 1,
+        ]);
+
+        return $this->responseHandler($request, false, 'Stok buku habis, silakan antri.', true);
+    }
 
         DB::beginTransaction();
 
@@ -208,8 +227,19 @@ class PeminjamanController extends Controller
                 ->first();
 
             if ($antrianPertama) {
-                $antrianPertama->status = 'diproses';
-                $antrianPertama->save();
+
+                // AUTO PINJAM
+                Peminjaman::create([
+                    'anggota_id' => $antrianPertama->anggota_id,
+                    'buku_id' => $peminjaman->buku_id,
+                    'tanggal_pinjam' => now(),
+                    'tanggal_mulai' => now()->toDateString(),
+                    'tanggal_jatuh_tempo' => now()->addDays($pengaturan->lama_peminjaman)->toDateString(),
+                    'status' => 'dipinjam',
+                ]);
+
+                // HAPUS DARI ANTRIAN
+                $antrianPertama->delete();
             }
 
             DB::commit();
@@ -245,6 +275,5 @@ class PeminjamanController extends Controller
 
         return back()->with($success ? 'success' : 'error', $message);
     }
-
 
 }

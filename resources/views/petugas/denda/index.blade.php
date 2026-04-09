@@ -10,11 +10,23 @@
 
 <div class="relative">
 
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 mb-5">
-        <span class="px-4 py-2 text-white text-sm font-semibold rounded-lg shadow-sm bg-cyan-900/80">
-            Daftar Denda
-        </span>
+    <!-- HEADER AREA: BREADCRUMB + TOAST -->
+    <div class="relative flex items-center justify-between mb-5 min-h-[44px]">
+
+        <!-- Breadcrumb -->
+        <div class="flex items-center gap-2 z-10">
+            <span class="px-4 py-2 text-white text-sm font-semibold rounded-lg shadow-sm bg-cyan-900/80">
+                Daftar Denda
+            </span>
+        </div>
+
+        <!-- TOAST -->
+        <div id="toastContainer"
+            class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50">
+        </div>
+
+        <!-- Spacer -->
+        <div class="w-[170px]"></div>
     </div>
 
     <!-- Filters -->
@@ -57,19 +69,19 @@
                 origin-top scale-y-95 opacity-0 -translate-y-2 pointer-events-none
                 transition-all duration-300 ease-out">
 
-                <button type="button" class="statusOption w-full text-left px-2 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="">
+                <button type="button" class="statusOption w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="">
                     Semua Status
                 </button>
-                <button type="button" class="statusOption w-full text-left px-2 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="belum_bayar">
+                <button type="button" class="statusOption w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="belum_bayar">
                     Belum Bayar
                 </button>
-                <button type="button" class="statusOption w-full text-left px-2 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="menunggu_verifikasi">
+                <button type="button" class="statusOption w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="menunggu_verifikasi">
                     Menunggu Verifikasi
                 </button>
-                <button type="button" class="statusOption w-full text-left px-2 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="lunas">
+                <button type="button" class="statusOption w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="lunas">
                     Lunas
                 </button>
-                <button type="button" class="statusOption w-full text-left px-2 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="ditolak">
+                <button type="button" class="statusOption w-full text-left px-4 py-2.5 rounded-xl hover:bg-slate-100 text-sm text-slate-700 transition" data-value="ditolak">
                     Ditolak
                 </button>
             </div>
@@ -84,9 +96,6 @@
 
     <!-- Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible relative">
-
-        <!-- TOAST -->
-        <div id="toastContainer" class="absolute left-1/2 -translate-x-1/2 top-0 z-50"></div>
 
         <table class="w-full text-sm">
             <thead>
@@ -106,7 +115,6 @@
             </tbody>
         </table>
 
-        <!-- Pagination AJAX -->
         <div id="paginationContainer">
             @include('components.pagination', ['paginator' => $data])
         </div>

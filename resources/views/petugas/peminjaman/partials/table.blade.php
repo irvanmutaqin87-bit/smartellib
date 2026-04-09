@@ -73,10 +73,38 @@
 
     <!-- AKSI -->
     <td class="px-5 py-4 text-center">
-        <a href="{{ route('petugas.peminjaman.show', $item->id) }}"
-           class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition shadow-sm">
-            Detail
-        </a>
+        <div class="relative inline-block">
+
+            <!-- BUTTON -->
+            <button type="button"
+                class="bookActionBtn w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-100 transition text-slate-700 text-2xl leading-none">
+                ⋯
+            </button>
+
+            <!-- DROPDOWN -->
+            <div class="bookActionDropdown absolute right-full top-1/2 -translate-y-1/2 mr-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50
+                origin-right scale-95 opacity-0 translate-x-2 pointer-events-none transition-all duration-300">
+
+                <!-- DETAIL -->
+                <a href="{{ route('petugas.peminjaman.show', $item->id) }}"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-slate-700 hover:bg-slate-50 transition">
+                    Detail Peminjaman
+                </a>
+
+                @if($item->status === 'dikembalikan')
+                    <button 
+                        type="button"
+                        class="ajaxAction w-full text-left px-4 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition"
+                        data-url="{{ route('petugas.peminjaman.destroy', $item->id) }}"
+                        data-method="DELETE"
+                        data-confirm="Hapus data peminjaman ini?"
+                    >
+                        Hapus Data
+                    </button>
+                @endif
+
+            </div>
+        </div>
     </td>
 
 </tr>

@@ -12,15 +12,20 @@ class DendaController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Denda::with(['peminjaman.anggota', 'peminjaman.buku']);
+        $query = Denda::with([
+            'peminjaman.anggota.user',
+            'peminjaman.buku'
+        ]);
 
+        // =========================
+        // SEARCH
+        // =========================
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
-                $q->whereHas('peminjaman.anggota', function ($anggota) use ($search) {
-                    $anggota->where('nama_lengkap', 'like', "%{$search}%")
-                            ->orWhere('nis', 'like', "%{$search}%");
+                $q->whereHas('peminjaman.anggota.user', function ($user) use ($search) {
+                    $user->where('nama', 'like', "%{$search}%");
                 })->orWhereHas('peminjaman.buku', function ($buku) use ($search) {
                     $buku->where('judul', 'like', "%{$search}%")
                          ->orWhere('kode_buku', 'like', "%{$search}%");
@@ -28,6 +33,9 @@ class DendaController extends Controller
             });
         }
 
+        // =========================
+        // FILTER STATUS
+        // =========================
         if ($request->filled('statusFilter')) {
             $query->where('status_denda', $request->statusFilter);
         }
@@ -75,7 +83,6 @@ class DendaController extends Controller
                 'catatan_verifikasi' => $request->catatan_verifikasi,
             ]);
 
-            // HISTORI PEMBAYARAN BARU DIBUAT SAAT VALID
             BayarDenda::create([
                 'denda_id' => $denda->id,
                 'jumlah_bayar' => $denda->jumlah_denda,
@@ -150,6 +157,14 @@ class DendaController extends Controller
     {
         try {
             $denda = Denda::findOrFail($id);
+
+            if (!in_array($denda->status_denda, ['lunas', 'ditolak'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data denda hanya bisa dihapus jika statusnya lunas atau ditolak.',
+                ], 422);
+            }
+
             $denda->delete();
 
             return response()->json([
@@ -163,5 +178,21 @@ class DendaController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    // =========================
+    // DETAIL DENDA
+    // =========================
+    public function show($id)
+    {
+    $denda = Denda::with([
+        'peminjaman.anggota.user',
+        'peminjaman.buku',
+        'peminjaman',
+        'verifikator',
+        'bayarDenda'
+    ])->findOrFail($id);
+
+        return view('petugas.denda.show', compact('denda'));
     }
 }

@@ -54,4 +54,9 @@ class Denda extends Model
     {
         return $this->status_denda === 'menunggu_verifikasi';
     }
+
+    public function bayarDenda()
+    {
+        return $this->hasOne(BayarDenda::class, 'denda_id');
+    }
 }

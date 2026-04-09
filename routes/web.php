@@ -15,6 +15,7 @@ use App\Http\Controllers\Petugas\PeminjamanController;
 use App\Http\Controllers\Petugas\DendaController;
 use App\Http\Controllers\Admin\PengaturanSistemController;
 use App\Http\Controllers\Admin\PetugasController;
+use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Anggota\DetailBukuController;
 use App\Http\Controllers\Anggota\PeminjamanController as AnggotaPeminjamanController;
 use App\Http\Controllers\Anggota\DendaAnggotaController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Petugas\AntrianPeminjamanController;
 use App\Http\Controllers\Anggota\BukuController as AnggotaBukuController;
 use App\Http\Controllers\Anggota\BookReviewController;
 use App\Http\Controllers\Anggota\BerandaController;
+use App\Http\Controllers\Anggota\UlasanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -162,6 +164,13 @@ Route::middleware(['auth','role:admin'])
     Route::patch('/petugas/{id}/toggle-status', [PetugasController::class, 'toggleStatus'])
         ->name('petugas.toggle-status');
 
+    // ======================
+    // LAPORAN
+    // ======================
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/data', [LaporanController::class, 'getData'])->name('laporan.data');
+    Route::get('/laporan/download-pdf', [LaporanController::class, 'downloadPdf'])->name('laporan.downloadPdf');
+
 });
 
 
@@ -206,19 +215,21 @@ Route::middleware(['auth','role:petugas'])
     Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::post('/peminjaman/{id}/kembalikan', [PeminjamanController::class, 'kembalikan'])->name('peminjaman.kembalikan');
     Route::post('/peminjaman/update-terlambat', [PeminjamanController::class, 'updateTerlambatMassal'])->name('peminjaman.updateTerlambat');
+    Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 
     // DENDA
     Route::get('/denda', [DendaController::class, 'index'])->name('denda.index');
+    Route::get('/denda/{id}', [DendaController::class, 'show'])->name('denda.show');
     Route::post('/denda/{id}/verifikasi', [DendaController::class, 'verifikasi'])->name('denda.verifikasi');
     Route::post('/denda/{id}/tolak', [DendaController::class, 'tolak'])->name('denda.tolak');
     Route::delete('/denda/{id}', [DendaController::class, 'destroy'])->name('denda.destroy');
 
     // ANTRIAN
-    Route::get('/antrian', [AntrianPeminjamanController::class, 'index'])->name('antrian.index');
-    Route::post('/antrian/{id}/proses', [AntrianPeminjamanController::class, 'proses'])->name('antrian.proses');
-    Route::post('/antrian/{id}/selesai', [AntrianPeminjamanController::class, 'selesai'])->name('antrian.selesai');
-    Route::post('/antrian/{id}/batalkan', [AntrianPeminjamanController::class, 'batalkan'])->name('antrian.batalkan');
-    Route::delete('/antrian/{id}', [AntrianPeminjamanController::class, 'destroy'])->name('antrian.destroy');
+    Route::get('/antrian-peminjaman', [AntrianPeminjamanController::class, 'index'])->name('antrian.index');
+    Route::get('/antrian-peminjaman/{id}', [AntrianPeminjamanController::class, 'show'])->name('antrian.show');
+    Route::post('/antrian-peminjaman/{id}/proses', [AntrianPeminjamanController::class, 'proses'])->name('antrian.proses');
+    Route::post('/antrian-peminjaman/{id}/selesai', [AntrianPeminjamanController::class, 'selesai'])->name('antrian.selesai');
+    Route::delete('/antrian-peminjaman/{id}', [AntrianPeminjamanController::class, 'destroy'])->name('antrian.destroy');
 
 });
 
@@ -285,4 +296,9 @@ Route::middleware(['auth', 'role:anggota'])
         // =========================
         Route::get('/denda', [DendaAnggotaController::class, 'index'])->name('denda.index');
         Route::post('/denda/{id}/upload-pembayaran', [DendaAnggotaController::class, 'uploadPembayaran'])->name('denda.uploadPembayaran');
+
+        // =========================
+        // ULASAN
+        // =========================
+        Route::post('/buku/{id}/ulasan', [UlasanController::class, 'store'])->name('buku.ulasan.store');
     });

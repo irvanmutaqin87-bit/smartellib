@@ -10,11 +10,23 @@
 
 <div class="relative">
 
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 mb-5">
-        <span class="px-4 py-2 text-white text-sm font-semibold rounded-lg shadow-sm bg-cyan-900/80">
-            Daftar Antrian Peminjaman
-        </span>
+    <!-- HEADER AREA: BREADCRUMB + TOAST -->
+    <div class="relative flex items-center justify-between mb-5 min-h-[44px]">
+
+        <!-- Breadcrumb Kiri -->
+        <div class="flex items-center gap-2 z-10">
+            <span class="px-4 py-2 text-white text-sm font-semibold rounded-lg shadow-sm bg-cyan-900/80">
+                Daftar Antrian Peminjaman
+            </span>
+        </div>
+
+        <!-- TOAST TENGAH -->
+        <div id="toastContainer"
+            class="absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 z-50">
+        </div>
+
+        <!-- Spacer kanan -->
+        <div class="w-[170px]"></div>
     </div>
 
     <!-- Filters -->
@@ -85,9 +97,6 @@
     <!-- Table -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-visible relative">
 
-        <!-- TOAST -->
-        <div id="toastContainer" class="absolute left-1/2 -translate-x-1/2 top-0 z-50"></div>
-
         <table class="w-full text-sm">
             <thead>
                 <tr class="bg-slate-50 border-b border-slate-200">
@@ -95,8 +104,8 @@
                     <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Anggota</th>
                     <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Buku</th>
                     <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Posisi</th>
+                    <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Tanggal Antrian</th>
                     <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Status</th>
-                    <th class="text-left px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Tanggal</th>
                     <th class="text-center px-5 py-3.5 font-semibold text-slate-400 text-xs uppercase tracking-wider">Aksi</th>
                 </tr>
             </thead>

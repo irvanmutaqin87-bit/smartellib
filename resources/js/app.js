@@ -7,7 +7,9 @@ import { initBookAnimation } from "./animations";
 import { initFilter } from "./filter";
 import { initDescriptionToggle } from "./description";
 import { initAdminDropdown } from "./adminDropdown";
+import { initDendaModal } from "./dendaModal";
 import { initPasswordModal } from "./passwordModal";
+import { initRating } from "./rating";
 
 import { initToast } from "./toast";
 import { initPasswordToggle } from "./passwordToggle";
@@ -15,6 +17,7 @@ import { initFormLoading } from "./formLoading";
 import { initRevealAnimation } from "./revealAnimation";
 import { initBookActionsModal } from "./bookActionsModal";
 import { initSearch } from "./search";
+import { initSearchNavbar } from "./searchNavbar";
 import { initSidebarActive } from "./sidebar-active";
 
 import { initAnggotaToast } from "./anggotaToast";
@@ -25,6 +28,8 @@ import {
 } from "./ajaxTable";
 import { initAjaxAction, initAjaxForm } from "./ajaxAction";
 import { initAjaxSimpleAction } from "./ajaxSimpleAction";
+import { initPetugasDenda } from "./petugas-denda";
+import { initLaporanPage } from "./laporan";
 
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
@@ -44,10 +49,16 @@ document.addEventListener("DOMContentLoaded", () => {
     initRevealAnimation();
     initBookActionsModal();
     initSearch();
+    initSearchNavbar();
+    initDendaModal();
     initSidebarActive();
     initAnggotaToast();
+    initRating();
 
     initAjaxSimpleAction();
+    initPetugasDenda();
+
+    initLaporanPage();
 
     // =========================
     // AJAX TABLE ANGGOTA
@@ -257,6 +268,86 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================
+    // AJAX TABLE LAPORAN ADMIN
+    // =========================
+    if (
+        document.querySelector("#tableContainer") &&
+        window.location.pathname === "/admin/laporan"
+    ) {
+        initAjaxTable({
+            url: "/admin/laporan/data?jenis_laporan=peminjaman",
+            tableContainer: "#tableContainer",
+            paginationContainer: "#paginationContainer",
+            searchInput: "#searchInput",
+            filterInputs: [
+                "#jenisLaporanFilter",
+                "#periodeFilter",
+                "#statusFilter",
+                "#tanggalDariFilter",
+                "#tanggalSampaiFilter",
+                "#bulanFilter",
+                "#tahunFilter",
+            ],
+            autoRefresh: false,
+            extraTargets: {
+                totalBox: "#totalLaporanBox",
+            },
+        });
+    }
+
+    // =========================
+    // CUSTOM DROPDOWN JENIS LAPORAN
+    // =========================
+    initCustomAjaxFilterDropdown({
+        buttonId: "jenisLaporanBtn",
+        dropdownId: "jenisLaporanDropdown",
+        textId: "jenisLaporanText",
+        inputId: "jenisLaporanFilter",
+        optionClass: "jenisLaporanOption",
+        defaultText: "Laporan Peminjaman",
+        useDataValue: true,
+    });
+
+    // =========================
+    // CUSTOM DROPDOWN PERIODE LAPORAN
+    // =========================
+    initCustomAjaxFilterDropdown({
+        buttonId: "periodeFilterBtn",
+        dropdownId: "periodeFilterDropdown",
+        textId: "periodeFilterText",
+        inputId: "periodeFilter",
+        optionClass: "periodeOption",
+        defaultText: "Semua Periode",
+        useDataValue: true,
+    });
+
+    // =========================
+    // CUSTOM DROPDOWN BULAN LAPORAN
+    // =========================
+    initCustomAjaxFilterDropdown({
+        buttonId: "bulanFilterBtn",
+        dropdownId: "bulanFilterDropdown",
+        textId: "bulanFilterText",
+        inputId: "bulanFilter",
+        optionClass: "bulanOption",
+        defaultText: "Semua Bulan",
+        useDataValue: true,
+    });
+
+    // =========================
+    // CUSTOM DROPDOWN TAHUN LAPORAN
+    // =========================
+    initCustomAjaxFilterDropdown({
+        buttonId: "tahunFilterBtn",
+        dropdownId: "tahunFilterDropdown",
+        textId: "tahunFilterText",
+        inputId: "tahunFilter",
+        optionClass: "tahunOption",
+        defaultText: "Semua Tahun",
+        useDataValue: true,
+    });
+
+    // =========================
     // AJAX ACTION (hapus / status / dll)
     // =========================
     initAjaxAction();
@@ -305,5 +396,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.querySelector("#petugasForm")) {
         initAjaxForm("#petugasForm");
         console.log("AJAX FORM petugas aktif");
+    }
+
+    // =========================
+    // AJAX FORM UPLOAD DENDA
+    // =========================
+    if (document.querySelector("#uploadDendaForm")) {
+        initAjaxForm("#uploadDendaForm");
+        console.log("AJAX FORM upload denda aktif");
     }
 });

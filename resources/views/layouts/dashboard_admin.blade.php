@@ -196,8 +196,8 @@
                     Daftar Buku
                 </a>
 
-                <a href="#" class="sidebar-link block px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out">
-                    Laporan
+                <a href="{{ route('admin.laporan.index') }}" class="sidebar-link block px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out">
+                    Manajemen Laporan
                 </a>
 
                 <a href="{{ route('admin.pengaturan.index') }}" class="sidebar-link block px-4 py-3 rounded-xl font-medium transition-all duration-500 ease-in-out">

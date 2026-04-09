@@ -27,70 +27,21 @@
 
     <section class="bg-white py-10 flex justify-center">
     <div class="bg-white w-full max-w-4xl rounded-2xl p-8 shadow-2xl relative">
-        <!-- TITIK 3 MENU -->
+        <!-- ICON BAGIKAN -->
         <div class="absolute right-6 top-6">
-
-            <!-- BUTTON -->
-            <button id="bookMenuButton"
-                class="p-2 rounded-full hover:bg-gray-100 transition">
+            <button id="openShareModal"
+                class="w-11 h-11 rounded-full bg-cyan-50 hover:bg-cyan-100 text-cyan-600 flex items-center justify-center shadow-sm transition-all duration-300 hover:scale-105">
 
                 <svg xmlns="http://www.w3.org/2000/svg"
-                    class="w-6 h-6 text-gray-500 hover:text-gray-800"
                     fill="none"
                     viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <circle cx="5" cy="12" r="1.5"/>
-                    <circle cx="12" cy="12" r="1.5"/>
-                    <circle cx="19" cy="12" r="1.5"/>
+                    stroke-width="1.8"
+                    stroke="currentColor"
+                    class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
                 </svg>
-
             </button>
-
-        <!-- DROPDOWN -->
-        <div id="bookDropdown"
-            class="absolute right-0 mt-2 w-44 bg-white rounded-xl shadow-lg border
-            origin-top-right
-            opacity-0 scale-y-0 -translate-y-4
-            transition-all duration-300 ease-out">
-
-            <!-- BAGIKAN -->
-            <button id="openShareModal"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2">
-
-                <!-- ICON -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-cyan-500">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
-                </svg>
-
-                Bagikan
-            </button>
-
-            <!-- SIMPAN -->
-            <button id="saveBookBtn"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2">
-
-                <!-- ICON -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-cyan-500">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-                </svg>
-
-                Simpan Buku
-            </button>
-
-            <!-- LAPORKAN -->
-            <button id="openReportModal"
-                class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 flex items-center gap-2">
-
-                <!-- ICON -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-cyan-500">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0 2.77-.693a9 9 0 0 1 6.208.682l.108.054a9 9 0 0 0 6.086.71l3.114-.732a48.524 48.524 0 0 1-.005-10.499l-3.11.732a9 9 0 0 1-6.085-.711l-.108-.054a9 9 0 0 0-6.208-.682L3 4.5M3 15V4.5" />
-                </svg>
-
-                Laporkan Buku
-            </button>
-
-        </div>
-
         </div>
 
         <h1 class="text-lg text-cyan-600 mb-6">
@@ -98,10 +49,10 @@
         </h1>
 
         <!-- TOP -->
-        <div class="flex flex-col md:flex-row gap-8">
+        <div class="flex flex-col md:flex-row items-start gap-8">
         <!-- COVER -->
         <img src="{{ $buku->cover ? asset('storage/' . $buku->cover) : 'https://via.placeholder.com/300x450?text=No+Cover' }}"
-            class="w-44 rounded-xl shadow object-cover aspect-[2/3]"
+            class="w-44 h-[280px] shrink-0 rounded-xl shadow object-cover"
             alt="{{ $buku->judul }}"
         />
 
@@ -139,60 +90,55 @@
             <!-- BUTTON -->
             <div class="flex flex-wrap gap-4 mt-5">
 
-                {{-- KALAU USER SEDANG PINJAM BUKU INI --}}
-                @if($sedangDipinjamUser)
-                    <form id="kembalikanForm" action="{{ route('anggota.peminjaman.kembalikan', $sedangDipinjamUser->id) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            class="px-6 py-2 bg-rose-500 text-white rounded-full hover:bg-rose-600 transition">
-                            Kembalikan Buku
-                        </button>
-                    </form>
-
-                @else
-
-                    {{-- KALAU ADA DENDA BELUM LUNAS --}}
-                    @if(isset($dendaAktif) && $dendaAktif && in_array($dendaAktif->status_denda, ['belum_bayar', 'menunggu_verifikasi', 'ditolak']))
-                        <button type="button"
-                            disabled
-                            class="px-6 py-2 bg-gray-300 text-white rounded-full cursor-not-allowed">
-                            Pinjam Diblokir
-                        </button>
-
-                    @else
-
-                        {{-- KALAU BOLEH PINJAM --}}
-                        @if($bolehPinjam)
-                            <form id="pinjamForm" action="{{ route('anggota.buku.pinjam', $buku->id) }}" method="POST">
+                        {{-- 1. PRIORITAS: SEDANG PINJAM --}}
+                        @if($sedangDipinjamUser)
+                            <form id="kembalikanForm"
+                                action="{{ route('anggota.peminjaman.kembalikan', $sedangDipinjamUser->id) }}"
+                                method="POST">
                                 @csrf
+                                <button type="submit"
+                                    class="px-6 py-2 bg-rose-500 text-white rounded-full hover:bg-rose-600">
+                                    Kembalikan Buku
+                                </button>
+                            </form>
+
+                        {{-- 2. PRIORITAS: SUDAH ANTRI --}}
+                        @elseif($sudahAntri)
+                            <button disabled
+                                class="px-6 py-2 bg-gray-300 text-white rounded-full cursor-not-allowed">
+                                Menunggu Antrian
+                            </button>
+
+                        {{-- 3. BLOKIR DENDA --}}
+                        @elseif($dendaAktif && in_array($dendaAktif->status_denda, ['belum_bayar','menunggu_verifikasi','ditolak']))
+                            <button disabled
+                                class="px-6 py-2 bg-gray-300 text-white rounded-full">
+                                Pinjam Diblokir
+                            </button>
+
+                        {{-- 4. BOLEH PINJAM / ANTRI --}}
+                        @elseif($bolehPinjam)
+
+                            <form id="pinjamForm"
+                                action="{{ route('anggota.buku.pinjam', $buku->id) }}"
+                                method="POST">
+                                @csrf
+
                                 <button type="submit"
                                     class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                                    Pinjam
+
+                                    {{ $stokHabis ? 'Pinjam (Masuk Antrian)' : 'Pinjam' }}
+
                                 </button>
                             </form>
-                        @endif
 
-                        {{-- KALAU BOLEH ANTRI --}}
-                        @if($bolehAntri)
-                            <form id="antrianForm" action="{{ route('anggota.buku.antrian', $buku->id) }}" method="POST">
-                                @csrf
-                                <button type="submit"
-                                    class="px-6 py-2 bg-yellow-400 text-white rounded-full hover:bg-yellow-500">
-                                    Masuk Antrian
-                                </button>
-                            </form>
-                        @endif
-
-                        {{-- FALLBACK --}}
-                        @if(!$bolehPinjam && !$bolehAntri && !$sedangDipinjamUser)
-                            <div class="text-red-500 text-sm mt-2">
+                        {{-- 5. FALLBACK --}}
+                        @else
+                            <div class="text-red-500 text-sm">
                                 Tidak dapat melakukan peminjaman atau antrian.
                             </div>
                         @endif
-
-                    @endif
-                @endif
-
+                        
                 {{-- BACA --}}
                 @if($isDigital && $sedangDipinjamUser)
                     <a href="{{ asset('storage/' . $buku->file_buku) }}" target="_blank"
@@ -213,7 +159,7 @@
                 @if($bolehUlasan)
                     <button type="button" id="openUlasanModal"
                         class="px-6 py-2 bg-cyan-400 text-white rounded-full hover:bg-cyan-500">
-                        {{ $userComment || $userRating ? 'Edit Ulasan' : 'Berikan Ulasan' }}
+                        {{ ($userComment || $userRating) ? 'Edit Ulasan' : 'Berikan Ulasan' }}
                     </button>
                 @endif
             </div>
@@ -237,7 +183,7 @@
                 Denda keterlambatan: Rp {{ number_format($dendaPerHari ?? 2000, 0, ',', '.') }} / hari
             </p>
 
-            @if(isset($dendaAktif) && $dendaAktif)
+            @if($dendaAktif)
                 <div class="mt-5 rounded-2xl border border-red-100 bg-gradient-to-br from-red-50 via-white to-red-50 p-5 shadow-sm">
                     <div class="flex items-start justify-between gap-4 flex-wrap">
                         <div>
@@ -431,14 +377,14 @@
 
                         <div class="flex gap-4 p-4 rounded-2xl border border-slate-100 bg-slate-50">
                             <div class="w-11 h-11 bg-cyan-100 text-cyan-700 rounded-full flex items-center justify-center font-semibold">
-                                {{ strtoupper(substr($komen->user->name ?? 'U', 0, 1)) }}
+                                {{ strtoupper(substr($komen->user->nama ?? 'U', 0, 1)) }}
                             </div>
 
                             <div class="flex-1">
                                 <div class="flex items-center justify-between flex-wrap gap-2">
                                     <div>
                                         <p class="font-semibold text-sm text-slate-800">
-                                            {{ $komen->user->name ?? 'Pengguna' }}
+                                            {{ $komen->user->nama ?? 'Pengguna' }}
                                         </p>
 
                                         <div class="text-yellow-400 text-sm mt-1">
@@ -556,7 +502,7 @@ opacity-0 pointer-events-none transition duration-300">
     <div id="shareCard"
     class="bg-white w-[420px] rounded-2xl shadow-xl p-7
     opacity-0 scale-90 translate-y-6
-    transition-all duration-300">
+    transition-all duration-300 will-change-transform">
 
         <!-- HEADER -->
         <h3 class="text-lg font-semibold text-gray-800 mb-1 text-center">
@@ -643,103 +589,200 @@ opacity-0 pointer-events-none transition duration-300">
 </div>
 
 <!-- MODAL BAYAR DENDA BUKU -->
-@if(isset($dendaAktif) && $dendaAktif && in_array($dendaAktif->status_denda, ['belum_bayar', 'ditolak']))
-<div id="reportModal"
+@if($dendaAktif && in_array($dendaAktif->status_denda, ['belum_bayar', 'ditolak']))
+<div id="dendaModal"
 class="fixed inset-0 z-[60] flex items-center justify-center
 bg-black/40 backdrop-blur-sm
-opacity-0 pointer-events-none transition duration-300">
+opacity-0 pointer-events-none transition duration-300 px-4 py-6">
 
-    <div id="reportCard"
-    class="bg-white w-[92%] max-w-md rounded-[28px] shadow-2xl p-7
+    <div id="dendaCard"
+    class="bg-white w-full max-w-[1180px] rounded-[28px] shadow-2xl
     opacity-0 scale-75 translate-y-8
-    transition-all duration-300 ease-out">
+    transition-all duration-300 ease-out will-change-transform
+    overflow-hidden">
 
         <!-- HEADER -->
-        <div class="text-center mb-6">
-            <div class="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-4 shadow-inner">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 1.343-3 3v2a3 3 0 006 0v-2c0-1.657-1.343-3-3-3z"/>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3v2m0 14v2m8-8h-2M6 12H4"/>
-                </svg>
-            </div>
-
-            <h3 class="text-xl font-semibold text-slate-800">
-                Bayar Denda
-            </h3>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Upload bukti pembayaran untuk proses verifikasi petugas.
-            </p>
-        </div>
-
-        <!-- 🔥 TAMBAHAN QR PEMBAYARAN -->
-        @if($pengaturan && $pengaturan->qr_pembayaran)
-            <img src="{{ asset('storage/' . $pengaturan->qr_pembayaran) }}"
-                class="w-40 mx-auto mb-4 rounded-lg shadow">
-        @endif
-
-        <p class="text-sm text-center text-gray-600">
-            {{ $pengaturan->metode_pembayaran_denda ?? '-' }}
-        </p>
-
-        <p class="text-xs text-center text-gray-500 mb-4">
-            {{ $pengaturan->catatan_pembayaran ?? '-' }}
-        </p>
-
-        <!-- INFO DENDA -->
-        <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 mb-5">
-            <div class="flex justify-between text-sm text-slate-600 mb-2">
-                <span>Hari Terlambat</span>
-                <span class="font-medium">{{ $dendaAktif->hari_terlambat }} Hari</span>
-            </div>
-            <div class="flex justify-between text-sm text-slate-600">
-                <span>Total Denda</span>
-                <span class="font-semibold text-red-500">
-                    Rp {{ number_format($dendaAktif->jumlah_denda, 0, ',', '.') }}
-                </span>
+        <div class="flex items-start justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+            <div>
+                <h3 class="text-2xl font-bold tracking-tight text-slate-800 leading-tight">
+                    Bayar Denda
+                </h3>
+                <p class="text-sm text-slate-500 mt-1">
+                    Selesaikan pembayaran denda dan upload bukti untuk verifikasi petugas.
+                </p>
             </div>
         </div>
 
-        <!-- FORM -->
-        <form action="{{ route('anggota.denda.uploadPembayaran', $dendaAktif->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
+        <!-- CONTENT -->
+        <div class="grid grid-cols-1 lg:grid-cols-3">
 
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                    Upload Bukti Pembayaran
-                </label>
-                <input type="file"
-                    name="bukti_pembayaran"
-                    accept="image/*"
-                    required
-                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200">
+            <!-- ===================== -->
+            <!-- KOLOM 1 : QR & METODE -->
+            <!-- ===================== -->
+            <div class="px-6 py-5 bg-gradient-to-br from-red-50 via-white to-rose-50 border-b lg:border-b-0 lg:border-r border-slate-100">
+
+                <h4 class="text-xl font-semibold text-slate-800 mb-1">
+                    Scan Pembayaran
+                </h4>
+
+                <p class="text-sm text-slate-500 mb-4 leading-relaxed">
+                    Gunakan QR berikut untuk membayar sesuai total denda.
+                </p>
+
+                @if($pengaturan && $pengaturan->qr_pembayaran)
+                    <div class="flex justify-center mb-5">
+                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                            <img src="{{ asset('storage/' . $pengaturan->qr_pembayaran) }}"
+                                class="w-40 h-40 object-contain rounded-xl"
+                                alt="QR Pembayaran">
+                        </div>
+                    </div>
+                @endif
+
+                <div class="rounded-2xl bg-white border border-slate-100 p-4 shadow-sm">
+                    <p class="text-sm text-slate-500 mb-1">Metode Pembayaran</p>
+                    <p class="text-lg font-semibold text-slate-800">
+                        {{ $pengaturan->metode_pembayaran_denda ?? '-' }}
+                    </p>
+
+                    @if(!empty($pengaturan->nama_ewallet))
+                        <div class="mt-3">
+                            <p class="text-sm text-slate-500 mb-1">Nama E-Wallet / Rekening</p>
+                            <p class="font-medium text-slate-700">
+                                {{ $pengaturan->nama_ewallet }}
+                            </p>
+                        </div>
+                    @endif
+                </div>
             </div>
 
-            <div class="mb-5">
-                <label class="block text-sm font-medium text-slate-700 mb-2">
-                    Catatan (Opsional)
-                </label>
-                <textarea
-                    name="catatan_verifikasi"
-                    rows="3"
-                    placeholder="Contoh: transfer via bank / e-wallet"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 resize-none"></textarea>
+            <!-- ===================== -->
+            <!-- KOLOM 2 : INFO DENDA -->
+            <!-- ===================== -->
+            <div class="px-6 py-5 border-b lg:border-b-0 lg:border-r border-slate-100 bg-white">
+
+                <h4 class="text-xl font-semibold text-slate-800 mb-1">
+                    Detail Pembayaran
+                </h4>
+
+                <p class="text-sm text-slate-500 mb-4 leading-relaxed">
+                    Pastikan nominal pembayaran sesuai jumlah denda berikut.
+                </p>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 shadow-sm">
+                        <p class="text-sm text-slate-500 mb-1">Hari Terlambat</p>
+                        <p class="text-2xl font-bold text-slate-800 leading-none">
+                            {{ $dendaAktif->hari_terlambat }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-2">Hari</p>
+                    </div>
+
+                    <div class="rounded-2xl bg-slate-50 border border-slate-100 p-4 shadow-sm">
+                        <p class="text-sm text-slate-500 mb-1">Total Denda</p>
+                        <p class="text-2xl font-bold text-red-500 leading-none">
+                            Rp {{ number_format($dendaAktif->jumlah_denda, 0, ',', '.') }}
+                        </p>
+                        <p class="text-sm text-slate-500 mt-2">Harus dibayar</p>
+                    </div>
+                </div>
+
+                <div class="rounded-2xl border border-slate-100 bg-slate-50 p-4 shadow-sm space-y-4">
+                    @if(!empty($pengaturan->nomor_pembayaran))
+                        <div>
+                            <p class="text-sm text-slate-500 mb-1">Nomor Pembayaran / No. HP</p>
+                            <div class="flex items-center justify-between gap-3">
+                                <p class="font-semibold text-slate-800 text-base tracking-wide">
+                                    {{ $pengaturan->nomor_pembayaran }}
+                                </p>
+
+                                <button type="button"
+                                    class="btn-copy-pembayaran px-3 py-1.5 rounded-full text-xs font-medium bg-red-50 text-red-600 hover:bg-red-100 transition"
+                                    data-nomor="{{ $pengaturan->nomor_pembayaran }}">
+                                    Salin
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div>
+                        <p class="text-sm text-slate-500 mb-1">Catatan Pembayaran</p>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            {{ $pengaturan->catatan_pembayaran ?? 'Silakan transfer sesuai nominal lalu upload bukti pembayaran.' }}
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex justify-end gap-3">
-                <button type="button"
-                    id="closeDendaModal"
-                    class="px-5 py-2.5 rounded-full text-sm font-medium text-slate-500 hover:text-red-500 transition">
-                    Batal
-                </button>
+            <!-- ===================== -->
+            <!-- KOLOM 3 : FORM UPLOAD -->
+            <!-- ===================== -->
+            <div class="px-6 py-5 bg-white">
+                <form 
+                    action="{{ route('anggota.denda.uploadPembayaran', $dendaAktif->id) }}"
+                    method="POST"
+                    enctype="multipart/form-data"
+                    class="non-ajax h-full flex flex-col">
+                    @csrf
 
-                <button type="submit"
-                    class="px-6 py-2.5 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300">
-                    Upload Bukti
-                </button>
+                    <h4 class="text-xl font-semibold text-slate-800 mb-1">
+                        Upload Bukti
+                    </h4>
+
+                    <p class="text-sm text-slate-500 mb-4 leading-relaxed">
+                        Upload screenshot atau foto bukti pembayaran yang jelas.
+                    </p>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Bukti Pembayaran
+                        </label>
+
+                        <div class="border-2 border-dashed border-slate-200 rounded-2xl p-4 hover:border-red-300 transition">
+                            <input type="file"
+                                name="bukti_pembayaran"
+                                accept="image/*"
+                                required
+                                class="w-full text-sm text-slate-600
+                                file:mr-3 file:py-2 file:px-4
+                                file:rounded-full file:border-0
+                                file:text-sm file:font-medium
+                                file:bg-red-50 file:text-red-600
+                                hover:file:bg-red-100 cursor-pointer">
+
+                            <p class="text-xs text-slate-400 mt-3">
+                                Format: JPG, PNG, JPEG. Pastikan bukti tidak blur.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex-1">
+                        <label class="block text-sm font-medium text-slate-700 mb-2">
+                            Catatan (Opsional)
+                        </label>
+                        <textarea
+                            name="catatan_verifikasi"
+                            rows="4"
+                            placeholder="Contoh: transfer via GoPay / DANA / bank"
+                            class="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 resize-none"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-3 mt-auto pt-2">
+                        <button type="button"
+                            id="closeDendaModal"
+                            class="px-5 py-2.5 rounded-full text-sm font-medium text-slate-500 hover:text-red-500 transition">
+                            Batal
+                        </button>
+
+                        <button type="submit"
+                            class="px-6 py-2.5 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium shadow-md hover:shadow-lg transition-all duration-300">
+                            Upload Bukti
+                        </button>
+                    </div>
+                </form>
             </div>
-        </form>
 
+        </div>
     </div>
 </div>
 @endif
@@ -753,7 +796,7 @@ opacity-0 pointer-events-none transition duration-300">
     <div id="reviewCard"
     class="bg-white w-[92%] max-w-lg rounded-[28px] shadow-2xl p-7
     opacity-0 scale-75 translate-y-8
-    transition-all duration-300 ease-out">
+    transition-all duration-300 ease-out will-change-transform">
 
         <div class="text-center mb-6">
             <h3 class="text-xl font-semibold text-slate-800">
@@ -815,261 +858,5 @@ opacity-0 pointer-events-none transition duration-300">
         </form>
     </div>
 </div>
-
-@push('scripts')
-<script>
-    // =========================
-    // TAB SWITCH
-    // =========================
-    let currentTab = 0;
-    const tabContent = document.getElementById("tabContent");
-    const tabLinks = document.querySelectorAll(".tab-link");
-    const tabIndicator = document.getElementById("tabIndicator");
-
-    function switchTab(index) {
-        currentTab = index;
-        tabContent.style.transform = `translateX(-${index * 100}%)`;
-
-        tabLinks.forEach((tab, i) => {
-            tab.classList.toggle("text-cyan-600", i === index);
-            tab.classList.toggle("text-gray-500", i !== index);
-        });
-
-        moveIndicator();
-    }
-
-    function moveIndicator() {
-        const activeTab = tabLinks[currentTab];
-        if (!activeTab || !tabIndicator) return;
-        tabIndicator.style.width = `${activeTab.offsetWidth}px`;
-        tabIndicator.style.left = `${activeTab.offsetLeft}px`;
-    }
-
-    window.addEventListener("load", () => {
-        switchTab(0);
-    });
-
-    window.addEventListener("resize", moveIndicator);
-
-    // =========================
-    // DESKRIPSI TOGGLE
-    // =========================
-    function toggleDesc() {
-        const desc = document.getElementById("descText");
-        const btn = document.getElementById("descBtn");
-
-        if (!desc || !btn) return;
-
-        desc.classList.toggle("line-clamp-2");
-
-        if (desc.classList.contains("line-clamp-2")) {
-            btn.innerText = "Selengkapnya";
-        } else {
-            btn.innerText = "Sembunyikan";
-        }
-    }
-
-    // =========================
-    // MODAL ULASAN
-    // =========================
-    const reviewModal = document.getElementById("reviewModal");
-    const reviewCard = document.getElementById("reviewCard");
-    const closeReviewModalBtn = document.getElementById("closeReviewModal");
-    const openUlasanModalBtn = document.getElementById("openUlasanModal");
-
-    function openReviewModal() {
-        if (!reviewModal || !reviewCard) return;
-
-        reviewModal.classList.remove("opacity-0", "pointer-events-none");
-        reviewCard.classList.remove("opacity-0", "scale-75", "translate-y-8");
-        reviewCard.classList.add("opacity-100", "scale-100", "translate-y-0");
-    }
-
-    function closeReviewModal() {
-        if (!reviewModal || !reviewCard) return;
-
-        reviewModal.classList.add("opacity-0", "pointer-events-none");
-        reviewCard.classList.add("opacity-0", "scale-75", "translate-y-8");
-        reviewCard.classList.remove("opacity-100", "scale-100", "translate-y-0");
-    }
-
-    openUlasanModalBtn?.addEventListener("click", openReviewModal);
-    closeReviewModalBtn?.addEventListener("click", closeReviewModal);
-
-    reviewModal?.addEventListener("click", (e) => {
-        if (e.target === reviewModal) closeReviewModal();
-    });
-
-    // =========================
-    // STAR RATING
-    // =========================
-    const starButtons = document.querySelectorAll(".star-btn");
-    const ratingInput = document.getElementById("ratingInput");
-
-    function renderStars(value) {
-        starButtons.forEach((star, index) => {
-            if (index < value) {
-                star.classList.remove("text-gray-300");
-                star.classList.add("text-yellow-400");
-            } else {
-                star.classList.remove("text-yellow-400");
-                star.classList.add("text-gray-300");
-            }
-        });
-    }
-
-    starButtons.forEach((star) => {
-        star.addEventListener("click", function () {
-            const value = parseInt(this.dataset.value);
-            ratingInput.value = value;
-            renderStars(value);
-        });
-    });
-
-    renderStars(parseInt(ratingInput?.value || 0));
-
-    // =========================
-    // AJAX FORM PINJAM
-    // =========================
-    const pinjamForm = document.getElementById("pinjamForm");
-
-    pinjamForm?.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const button = pinjamForm.querySelector("button[type='submit']");
-        const originalText = button.innerHTML;
-
-        button.disabled = true;
-        button.innerHTML = "Memproses...";
-
-        try {
-            const response = await fetch(pinjamForm.action, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": pinjamForm.querySelector('input[name="_token"]').value,
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Accept": "application/json",
-                },
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                window.showAnggotaToast?.(result.message, "success");
-
-                if (result.reload) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
-                }
-            } else {
-                window.showAnggotaToast?.(result.message || "Gagal meminjam buku.", "error");
-            }
-        } catch (error) {
-            window.showAnggotaToast?.("Terjadi kesalahan saat meminjam buku.", "error");
-            console.error(error);
-        } finally {
-            button.disabled = false;
-            button.innerHTML = originalText;
-        }
-    });
-
-    // =========================
-    // AJAX FORM ANTRIAN
-    // =========================
-    const antrianForm = document.getElementById("antrianForm");
-
-    antrianForm?.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const button = antrianForm.querySelector("button[type='submit']");
-        const originalText = button.innerHTML;
-
-        button.disabled = true;
-        button.innerHTML = "Memproses...";
-
-        try {
-            const response = await fetch(antrianForm.action, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": antrianForm.querySelector('input[name="_token"]').value,
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Accept": "application/json",
-                },
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                window.showAnggotaToast?.(result.message, "success");
-
-                if (result.reload) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
-                }
-            } else {
-                window.showAnggotaToast?.(result.message || "Gagal masuk antrian.", "error");
-            }
-        } catch (error) {
-            window.showAnggotaToast?.("Terjadi kesalahan saat masuk antrian.", "error");
-            console.error(error);
-        } finally {
-            button.disabled = false;
-            button.innerHTML = originalText;
-        }
-    });
-</script>
-
-<script>
-    // =========================
-    // AJAX FORM KEMBALIKAN
-    // =========================
-    const kembalikanForm = document.getElementById("kembalikanForm");
-
-    kembalikanForm?.addEventListener("submit", async function (e) {
-        e.preventDefault();
-
-        const button = kembalikanForm.querySelector("button[type='submit']");
-        const originalText = button.innerHTML;
-
-        button.disabled = true;
-        button.innerHTML = "Memproses...";
-
-        try {
-            const response = await fetch(kembalikanForm.action, {
-                method: "POST",
-                headers: {
-                    "X-CSRF-TOKEN": kembalikanForm.querySelector('input[name="_token"]').value,
-                    "X-Requested-With": "XMLHttpRequest",
-                    "Accept": "application/json",
-                },
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                window.showAnggotaToast?.(result.message, "success");
-
-                if (result.reload) {
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1200);
-                }
-            } else {
-                window.showAnggotaToast?.(result.message || "Gagal mengembalikan buku.", "error");
-            }
-        } catch (error) {
-            window.showAnggotaToast?.("Terjadi kesalahan saat mengembalikan buku.", "error");
-            console.error(error);
-        } finally {
-            button.disabled = false;
-            button.innerHTML = originalText;
-        }
-    });
-</script>
-
-@endpush
-
 @endsection
 

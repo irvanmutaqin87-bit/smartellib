@@ -8,7 +8,6 @@ use App\Models\PengaturanSistem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\ValidationException;
 
 class DendaAnggotaController extends Controller
 {
@@ -37,68 +36,83 @@ class DendaAnggotaController extends Controller
     // =========================
     public function uploadPembayaran(Request $request, $id)
     {
-        try {
-            $request->validate([
-                'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
-            ], [
-                'bukti_pembayaran.required' => 'Bukti pembayaran wajib diupload.',
-                'bukti_pembayaran.image' => 'File harus berupa gambar.',
-                'bukti_pembayaran.mimes' => 'Format file harus JPG, JPEG, PNG, atau WEBP.',
-                'bukti_pembayaran.max' => 'Ukuran file maksimal 2MB.',
-            ]);
+        // VALIDASI (otomatis redirect kalau gagal)
+        $request->validate([
+            'bukti_pembayaran' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
+        ], [
+            'bukti_pembayaran.required' => 'Bukti pembayaran wajib diupload.',
+            'bukti_pembayaran.image' => 'File harus berupa gambar.',
+            'bukti_pembayaran.mimes' => 'Format file harus JPG, JPEG, PNG, atau WEBP.',
+            'bukti_pembayaran.max' => 'Ukuran file maksimal 2MB.',
+        ]);
 
-            $user = Auth::user();
-            $anggota = $user?->anggota;
+        $user = Auth::user();
+        $anggota = $user?->anggota;
 
-            $denda = Denda::with('peminjaman.anggota')->findOrFail($id);
-
-            if (!$denda->peminjaman || $denda->peminjaman->anggota_id !== $anggota->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Kamu tidak punya akses ke denda ini.',
-                ], 403);
-            }
-
-            if (!in_array($denda->status_denda, ['belum_bayar', 'ditolak'])) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Denda ini tidak bisa diupload bukti lagi.',
-                ], 422);
-            }
-
-            if ($request->hasFile('bukti_pembayaran')) {
-                if ($denda->bukti_pembayaran && Storage::disk('public')->exists($denda->bukti_pembayaran)) {
-                    Storage::disk('public')->delete($denda->bukti_pembayaran);
-                }
-
-                $path = $request->file('bukti_pembayaran')->store('bukti-denda', 'public');
-
-                $denda->update([
-                    'bukti_pembayaran' => $path,
-                    'status_denda' => 'menunggu_verifikasi',
-                    'catatan_verifikasi' => null,
-                    'tanggal_verifikasi' => null,
-                    'verifikator_id' => null,
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Bukti pembayaran berhasil diupload dan sedang menunggu verifikasi.',
-                'reload' => true,
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->validator->errors()->first(),
-                'errors' => $e->validator->errors(),
-            ], 422);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal upload bukti pembayaran.',
-                'error' => $e->getMessage(),
-            ], 500);
+        if (!$anggota) {
+            return $this->responseHandler($request, false, 'Data anggota tidak ditemukan.');
         }
+
+        $denda = Denda::with('peminjaman.anggota')->findOrFail($id);
+
+        // CEK AKSES
+        if (!$denda->peminjaman || $denda->peminjaman->anggota_id !== $anggota->id) {
+            return $this->responseHandler($request, false, 'Kamu tidak punya akses ke denda ini.');
+        }
+
+        // CEK STATUS
+        if (!in_array($denda->status_denda, ['belum_bayar', 'ditolak'])) {
+            return $this->responseHandler($request, false, 'Denda ini tidak bisa diupload bukti lagi.');
+        }
+
+        try {
+            // HAPUS FILE LAMA
+            if ($denda->bukti_pembayaran && Storage::disk('public')->exists($denda->bukti_pembayaran)) {
+                Storage::disk('public')->delete($denda->bukti_pembayaran);
+            }
+
+            // SIMPAN FILE BARU
+            $path = $request->file('bukti_pembayaran')->store('bukti-denda', 'public');
+
+            // UPDATE DATA
+            $denda->update([
+                'bukti_pembayaran' => $path,
+                'status_denda' => 'menunggu_verifikasi',
+                'catatan_verifikasi' => null,
+                'tanggal_verifikasi' => null,
+                'verifikator_id' => null,
+            ]);
+
+            return $this->responseHandler(
+                $request,
+                true,
+                'Bukti pembayaran berhasil diupload dan sedang menunggu verifikasi.',
+                true
+            );
+
+        } catch (\Throwable $e) {
+            return $this->responseHandler(
+                $request,
+                false,
+                'Gagal upload bukti pembayaran.'
+            );
+        }
+    }
+
+    // =========================
+    // RESPONSE HANDLER (SAMA KAYAK PEMINJAMAN)
+    // =========================
+    private function responseHandler(Request $request, $success, $message, $reload = false, $data = [])
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => $success,
+                'message' => $message,
+                'reload' => $reload,
+                'data' => $data,
+            ]);
+        }
+
+        return back()->with($success ? 'success' : 'error', $message);
     }
 }

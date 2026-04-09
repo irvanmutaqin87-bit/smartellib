@@ -204,6 +204,9 @@ export function initAjaxForm(selector) {
     const forms = document.querySelectorAll(selector);
 
     forms.forEach((form) => {
+        // 🚫 SKIP FORM NON AJAX
+        if (form.classList.contains("no-ajax")) return;
+
         // =========================
         // REALTIME CLEAR ERROR
         // =========================

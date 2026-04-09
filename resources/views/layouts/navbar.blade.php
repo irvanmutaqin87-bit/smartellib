@@ -11,20 +11,41 @@
 
         <div class="relative group">
             <input
-                onclick="goToSearch()"
-                readonly
+                id="searchInputNavbar"
+                type="text"
+                value="{{ request('q') }}"
                 placeholder="Cari buku di Smartellib..."
-                class="cursor-pointer w-[380px] focus:w-[460px]
-                transition-all duration-300 ease-in-out
-                bg-white/80 backdrop-blur
-                rounded-full px-5 py-2.5 text-sm
-                shadow-sm border
-                focus:outline-none
-                focus:ring-2 focus:ring-cyan-400"
+                class="
+                    w-[380px]
+                    bg-white/80 backdrop-blur
+                    rounded-full px-5 py-2.5 pr-12 text-sm
+                    shadow-sm border border-gray-200
+                    transition-all duration-300
+                    hover:shadow-md
+
+                    outline-none
+                    ring-0
+
+                    focus:outline-none
+                    focus:ring-2 focus:ring-cyan-400
+                    focus:border-cyan-400
+                    focus:shadow-[0_0_0_4px_rgba(34,211,238,0.15)]
+
+                    active:outline-none
+                    active:ring-0
+
+                    appearance-none
+                    [-webkit-appearance:none]
+                    [-moz-appearance:none]
+
+                    {{ request()->routeIs('anggota.search') ? 'cursor-text' : 'cursor-pointer' }}
+                "
+                {{ request()->routeIs('anggota.search') ? '' : 'readonly' }}
             />
 
             <svg
-                class="w-5 h-5 absolute right-4 top-2.5 text-gray-500"
+                id="searchBtnNavbar"
+                class="w-5 h-5 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
                 fill="none"
                 stroke="currentColor"
                 stroke-width="2"
@@ -254,3 +275,9 @@
         </div>
     </div>
 </header>
+
+<script>
+    window.searchPageUrl = "{{ route('anggota.search') }}";
+    window.searchAjaxUrl = "{{ route('anggota.search.query') }}";
+    window.isSearchPage = {{ request()->routeIs('anggota.search') ? 'true' : 'false' }};
+</script>

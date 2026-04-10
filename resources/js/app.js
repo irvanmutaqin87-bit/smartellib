@@ -30,6 +30,8 @@ import { initAjaxAction, initAjaxForm } from "./ajaxAction";
 import { initAjaxSimpleAction } from "./ajaxSimpleAction";
 import { initPetugasDenda } from "./petugas-denda";
 import { initLaporanPage } from "./laporan";
+import { initDashboardChart } from "./dashboardChart";
+import { initChartFilter } from "./dashboardChart";
 
 document.addEventListener("DOMContentLoaded", () => {
     initNavbar();
@@ -59,6 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initPetugasDenda();
 
     initLaporanPage();
+    initChartFilter();
 
     // =========================
     // AJAX TABLE ANGGOTA
@@ -296,6 +299,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================
+    // AJAX TABLE DASHBOARD ADMIN
+    // =========================
+    if (
+        document.querySelector("#tableContainer") &&
+        window.location.pathname === "/admin/dashboard"
+    ) {
+        initAjaxTable({
+            url: "/admin/dashboard",
+            tableContainer: "#tableContainer",
+            paginationContainer: "#paginationContainer",
+            searchInput: "#searchInput",
+            filterInputs: ["#statusFilter"],
+            autoRefresh: true,
+            refreshInterval: 10000,
+        });
+    }
+
+    // =========================
     // CUSTOM DROPDOWN JENIS LAPORAN
     // =========================
     initCustomAjaxFilterDropdown({
@@ -404,5 +425,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (document.querySelector("#uploadDendaForm")) {
         initAjaxForm("#uploadDendaForm");
         console.log("AJAX FORM upload denda aktif");
+    }
+
+    // =========================
+    // DASHBOARD CHART
+    // =========================
+    if (document.getElementById("peminjamanChart")) {
+        initDashboardChart(window.chartLabels, window.chartData);
     }
 });

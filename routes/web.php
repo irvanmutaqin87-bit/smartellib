@@ -16,6 +16,7 @@ use App\Http\Controllers\Petugas\DendaController;
 use App\Http\Controllers\Admin\PengaturanSistemController;
 use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Anggota\DetailBukuController;
 use App\Http\Controllers\Anggota\PeminjamanController as AnggotaPeminjamanController;
 use App\Http\Controllers\Anggota\DendaAnggotaController;
@@ -24,6 +25,8 @@ use App\Http\Controllers\Anggota\BukuController as AnggotaBukuController;
 use App\Http\Controllers\Anggota\BookReviewController;
 use App\Http\Controllers\Anggota\BerandaController;
 use App\Http\Controllers\Anggota\UlasanController;
+use App\Http\Controllers\Anggota\ProfileController;
+use App\Http\Controllers\Anggota\RakController;
 
 /*
 |--------------------------------------------------------------------------
@@ -125,9 +128,7 @@ Route::middleware(['auth','role:admin'])
     ->name('admin.')
     ->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // daftar anggota
     Route::get('/anggota', [AdminAnggotaController::class, 'index'])->name('anggota.index');
@@ -182,9 +183,7 @@ Route::middleware(['auth','role:petugas'])
     ->name('petugas.')
     ->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('petugas.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\Petugas\DashboardController::class, 'index'])->name('dashboard');
 
     //route manajemen anggota
     Route::get('/anggota', [AnggotaController::class, 'index'])->name('anggota.index');
@@ -273,17 +272,22 @@ Route::middleware(['auth', 'role:anggota'])
         // =========================
         // PROFILE
         // =========================
-        Route::get('/data-profile', function () {
-            return view('anggota.data_profile');
-        })->name('data_profile');
+        // PROFILE PAGE
+        Route::get('/profile', [ProfileController::class, 'profile'])->name('profile');
 
-        Route::get('/profile', function () {
-            return view('anggota.profile');
-        })->name('profile');
+        // halaman data profile
+        Route::get('/data-profile', [ProfileController::class, 'dataProfile'])->name('data.profile');
 
-        Route::get('/rak', function () {
-            return view('anggota.rak');
-        })->name('rak');
+        // update profile
+        Route::put('/data-profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+
+        // update password
+        Route::post('/update-password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+        // upload foto
+        Route::post('/upload-photo', [ProfileController::class, 'uploadPhoto'])->name('profile.photo');
+
+        Route::get('/rak', [RakController::class, 'index'])->name('rak');
 
         // =========================
         // SEARCH

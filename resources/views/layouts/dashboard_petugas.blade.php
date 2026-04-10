@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard')</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     @vite(['resources/css/app.css','resources/js/app.js'])
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,46 +52,20 @@
             origin-top transform scale-y-0 opacity-0 -translate-y-2
             transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
 
-                <div class="bg-gradient-to-r from-cyan-800 to-cyan-700 rounded-b-2xl p-5 text-white flex items-center gap-4">
+                <div class="bg-gradient-to-r from-cyan-800 to-cyan-700 rounded-b-2xl p-4 text-white flex items-center gap-4">
 
                     <div class="relative">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center text-xl font-semibold">
-                            AD
-                        </div>
-
-                        <div class="absolute -bottom-1 -right-1 w-7 h-7 bg-white rounded-full flex items-center justify-center shadow">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4 text-cyan-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke-width="2"
-                            stroke="currentColor">
-                                <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M10.325 4.317
-                                c.426-1.756 2.924-1.756
-                                3.35 0a1.724 1.724 0 002.573 1.066
-                                c1.543-.94 3.31.826
-                                2.37 2.37a1.724 1.724 0 001.065 2.572
-                                c1.756.426 1.756 2.924
-                                0 3.35a1.724 1.724 0 00-1.066 2.573
-                                c.94 1.543-.826 3.31
-                                -2.37 2.37a1.724 1.724 0 00-2.572 1.065
-                                c-.426 1.756-2.924 1.756
-                                -3.35 0a1.724 1.724 0 00-2.573-1.066
-                                c-1.543.94-3.31-.826
-                                -2.37-2.37a1.724 1.724 0 00-1.065-2.572
-                                c-1.756-.426-1.756-2.924
-                                0-3.35a1.724 1.724 0 001.066-2.573
-                                c-.94-1.543.826-3.31
-                                2.37-2.37.996.608
-                                2.296.07 2.572-1.065z"/>
-                                <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15 12a3 3 0 11-6 0
-                                3 3 0 016 0z"/>
-                            </svg>
-                        </div>
+                            @if(auth()->user()->photo)
+                                <img 
+                                    src="{{ asset('storage/' . auth()->user()->photo) }}"
+                                    class="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                                >
+                            @else
+                                <img 
+                                    src="{{ asset('/img/pp.jpg') }}"
+                                    class="w-12 h-12 rounded-full object-cover border-2 border-white shadow"
+                                >
+                            @endif
                     </div>
 
                     <div>
@@ -116,10 +91,6 @@
 
                             {{ auth()->user()->email ?? 'admin@email.com' }}
                         </div>
-
-                        <button class="mt-3 bg-white text-cyan-600 text-sm font-medium px-4 py-1.5 rounded-full hover:bg-cyan-100 transition">
-                            Lihat Profil
-                        </button>
                     </div>
                 </div>
 
@@ -165,7 +136,7 @@
                     class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-white/40">
 
                 <h2 class="font-semibold text-white text-lg mb-2">
-                    Petugas Smartellib
+                    {{ auth()->user()->nama ?? 'Petugas' }}
                 </h2>
 
                 <span class="text-sm bg-white/30 px-10 py-1 rounded-full text-white">

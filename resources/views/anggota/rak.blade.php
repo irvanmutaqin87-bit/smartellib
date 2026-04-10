@@ -61,106 +61,159 @@
 
                 <!-- ================= PINJAM ================= -->
                 <div class="w-full flex-none py-6 space-y-6 isolate min-h-[420px] overflow-hidden">
+                    @forelse($pinjam as $item)
                     <div class="bg-white rounded-2xl shadow p-6 flex gap-4">
-                        <img src="https://covers.openlibrary.org/b/isbn/9780140449136-L.jpg"
+
+                        <img src="{{ $item->buku->cover 
+                            ? asset('storage/'.$item->buku->cover) 
+                            : 'https://via.placeholder.com/150' }}"
                             class="w-24 h-36 rounded shadow object-cover">
 
                         <div class="flex-1">
-                            <p class="font-semibold text-sm">Buku Manual 1</p>
-                            <p class="text-xs text-gray-500">Pengarang A</p>
-                            <p class="text-sm mt-2 text-gray-700">Status: Dipinjam</p>
-                            <!-- Rating / Ulasan (opsional) -->
-                            <p class="text-yellow-400 text-sm mt-1">★★★★★ 4.5</p>
-                        </div>
-                    </div>
+                            <p class="font-semibold text-sm">
+                                {{ $item->buku->judul }}
+                            </p>
 
-                    <div class="bg-white rounded-2xl shadow p-6 flex gap-4">
-                        <img src="https://covers.openlibrary.org/b/isbn/9780140449181-L.jpg"
-                            class="w-24 h-36 rounded shadow object-cover">
+                            <p class="text-xs text-gray-500">
+                                {{ $item->buku->penulis }}
+                            </p>
 
-                        <div class="flex-1">
-                            <p class="font-semibold text-sm">Buku Manual 2</p>
-                            <p class="text-xs text-gray-500">Pengarang B</p>
-                            <p class="text-sm mt-2 text-gray-700">Status: Dipinjam</p>
-                            <p class="text-yellow-400 text-sm mt-1">★★★★☆ 4.2</p>
+                            <p class="text-sm mt-2 text-gray-700">
+                                Status: {{ ucfirst($item->status) }}
+                            </p>
                         </div>
+
                     </div>
+                    @empty
+                    <p class="text-gray-500 text-center">Tidak ada buku dipinjam</p>
+                    @endforelse
                 </div>
 
                 <!-- ================= ANTRIAN ================= -->
                 <div class="w-full flex-none py-6 space-y-6 isolate min-h-[420px] overflow-hidden">
+                    @forelse($antrian as $item)
                     <div class="bg-white rounded-2xl shadow p-6 flex gap-4">
-                        <img src="https://covers.openlibrary.org/b/isbn/9780140449273-L.jpg"
+
+                        <img src="{{ $item->buku->cover 
+                            ? asset('storage/'.$item->buku->cover) 
+                            : 'https://via.placeholder.com/150' }}"
                             class="w-24 h-36 rounded shadow object-cover">
 
                         <div class="flex-1">
-                            <p class="font-semibold text-sm">Buku Manual 3</p>
-                            <p class="text-xs text-gray-500">Pengarang C</p>
-                            <p class="text-sm mt-2 text-gray-700">Status: Menunggu Antrian</p>
-                            <p class="text-yellow-400 text-sm mt-1">★★★★★ 4.5</p>
-                        </div>
-                    </div>
+                            <p class="font-semibold text-sm">
+                                {{ $item->buku->judul }}
+                            </p>
 
-                    <div class="bg-white rounded-2xl shadow p-6 flex gap-4">
-                        <img src="https://covers.openlibrary.org/b/isbn/9780140449297-L.jpg"
-                            class="w-24 h-36 rounded shadow object-cover">
+                            <p class="text-xs text-gray-500">
+                                {{ $item->buku->penulis }}
+                            </p>
 
-                        <div class="flex-1">
-                            <p class="font-semibold text-sm">Buku Manual 4</p>
-                            <p class="text-xs text-gray-500">Pengarang D</p>
-                            <p class="text-sm mt-2 text-gray-700">Status: Menunggu Antrian</p>
-                            <p class="text-yellow-400 text-sm mt-1">★★★★★ 4.5</p>
+                            <p class="text-sm mt-2 text-gray-700">
+                                Status: Menunggu Antrian
+                            </p>
                         </div>
+
                     </div>
+                    @empty
+                    <p class="text-gray-500 text-center">Tidak ada antrian</p>
+                    @endforelse
                 </div>
 
                 <!-- ================= RIWAYAT ================= -->
                 <div class="w-full flex-none py-6 space-y-6 isolate min-h-[420px] overflow-hidden">
+                    @forelse($riwayat as $item)
                     <div class="bg-white rounded-2xl shadow p-6 flex gap-4">
-                        <img src="https://covers.openlibrary.org/b/isbn/9780140449310-L.jpg"
+
+                        <img src="{{ $item->buku->cover 
+                            ? asset('storage/'.$item->buku->cover) 
+                            : 'https://via.placeholder.com/150' }}"
                             class="w-24 h-36 rounded shadow object-cover">
 
                         <div class="flex-1">
-                            <p class="font-semibold text-sm">Buku Manual 5</p>
-                            <p class="text-xs text-gray-500">Pengarang E</p>
-                            <p class="text-sm mt-2 text-gray-700">Status: Dikembalikan</p>
-                            <p class="text-yellow-400 text-sm mt-1">★★★★★ 4.8</p>
+                            <p class="font-semibold text-sm">
+                                {{ $item->buku->judul }}
+                            </p>
+
+                            <p class="text-xs text-gray-500">
+                                {{ $item->buku->penulis }}
+                            </p>
+
+                            <p class="text-sm mt-2 text-gray-700">
+                                Pernah dipinjam
+                            </p>
                         </div>
+
                     </div>
+                    @empty
+                    <p class="text-gray-500 text-center">Belum ada riwayat</p>
+                    @endforelse
                 </div>
 
                 <!-- ================= ULASAN ================= -->
                 <div class="w-full flex-none py-6 space-y-6 isolate min-h-[420px] overflow-hidden">
+                @forelse($ulasan as $item)
                     <div class="bg-white rounded-2xl shadow p-6">
                         <div class="flex gap-4">
+
+                            <!-- AVATAR -->
                             <div class="w-10 h-10 bg-cyan-500 text-white flex items-center justify-center rounded-full text-sm">
-                                IM
+                                {{ strtoupper(substr($item->user->nama,0,2)) }}
                             </div>
 
                             <div class="flex-1">
-                                <p class="font-semibold text-sm">Irvan Mutaqin</p>
-                                <p class="text-xs text-gray-500">
-                                    Memberikan rating dan ulasan • 15 Maret 2026
+
+                                <!-- NAMA -->
+                                <p class="font-semibold text-sm">
+                                    {{ $item->user->nama }}
                                 </p>
 
+                                <!-- TANGGAL -->
+                                <p class="text-xs text-gray-500">
+                                    Memberikan ulasan • {{ $item->created_at->format('d M Y') }}
+                                </p>
+
+                                <!-- KOMENTAR -->
                                 <p class="text-sm mt-2 text-gray-700">
-                                    Buku ini sangat menarik dan inspiratif.
+                                    {{ $item->comment }}
                                 </p>
 
                                 <!-- BUKU -->
                                 <div class="flex gap-4 mt-4">
-                                    <img src="https://covers.openlibrary.org/b/isbn/9780062316097-L.jpg"
-                                        class="w-24 rounded shadow object-cover">
+                                    <img src="{{ $item->buku->cover 
+                                        ? asset('storage/'.$item->buku->cover) 
+                                        : 'https://via.placeholder.com/100' }}"
+                                        class="w-24 rounded shadow">
 
                                     <div>
-                                        <p class="font-semibold text-sm">Bagaimana Saya Menulis</p>
-                                        <p class="text-xs text-gray-500">Bertrand Russell</p>
-                                        <p class="text-yellow-400 text-sm mt-1">★★★★★ 4.7</p>
+                                        <p class="font-semibold text-sm">
+                                            {{ $item->buku->judul }}
+                                        </p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ $item->buku->penulis }}
+                                        </p>
+
+                                        @php
+                                            $rating = round($item->rating?->rating ?? 0);
+                                        @endphp
+
+                                        <div class="flex text-yellow-400 text-sm mt-1">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($i <= $rating)
+                                                    ★
+                                                @else
+                                                    <span class="text-gray-300">★</span>
+                                                @endif
+                                            @endfor
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
+                @empty
+                <p class="text-gray-500 text-center">Belum ada ulasan</p>
+                @endforelse
                 </div>
 
             </div>

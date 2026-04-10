@@ -14,63 +14,85 @@
 
             <div class="relative w-28 mx-auto">
 
-                <!-- AVATAR -->
-                <div
-                    class="
-                        w-28 h-28 rounded-full
-                        bg-gradient-to-br from-cyan-500 to-cyan-500
-                        text-white font-semibold text-3xl
-                        flex items-center justify-center
-                        ring-2 ring-cyan-300/40
-                        shadow-[0_0_12px_rgba(34,211,238,0.45)]
-                        hover:scale-105
-                        hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
-                        transition duration-300
-                        mt-6
-                    "
-                >
-                    {{ strtoupper(substr(auth()->user()->name ?? 'IM',0,2)) }}
-                </div>
+                <!-- FORM UPLOAD FOTO -->
+                <form action="{{ route('anggota.profile.photo') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
 
+                    <!-- AVATAR -->
+                    @if(auth()->user()->photo)
+                        <img 
+                            src="{{ asset('storage/'.auth()->user()->photo) }}"
+                            class="
+                                w-28 h-28 rounded-full object-cover
+                                ring-2 ring-cyan-300/40
+                                shadow-[0_0_12px_rgba(34,211,238,0.45)]
+                                hover:scale-105
+                                hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
+                                transition duration-300
+                                mt-6
+                            "
+                        >
+                    @else
+                        <div
+                            class="
+                                w-28 h-28 rounded-full
+                                bg-gradient-to-br from-cyan-500 to-cyan-500
+                                text-white font-semibold text-3xl
+                                flex items-center justify-center
+                                ring-2 ring-cyan-300/40
+                                shadow-[0_0_12px_rgba(34,211,238,0.45)]
+                                hover:scale-105
+                                hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
+                                transition duration-300
+                                mt-6
+                            "
+                        >
+                            {{ strtoupper(substr(auth()->user()->nama ?? 'IM',0,2)) }}
+                        </div>
+                    @endif
 
-                <!-- CAMERA BUTTON -->
-                <label
-                    class="
-                        absolute bottom-0 right-0
-                        w-9 h-9 rounded-full
-                        bg-white
-                        flex items-center justify-center
-                        cursor-pointer
-                        ring-2 ring-cyan-300/40
-                        shadow-[0_0_12px_rgba(34,211,238,0.45)]
-                        hover:scale-105
-                        hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
-                        transition duration-300
-                    "
-                >
+                    <!-- CAMERA BUTTON -->
+                    <label
+                        class="
+                            absolute bottom-0 right-0
+                            w-9 h-9 rounded-full
+                            bg-white
+                            flex items-center justify-center
+                            cursor-pointer
+                            ring-2 ring-cyan-300/40
+                            shadow-[0_0_12px_rgba(34,211,238,0.45)]
+                            hover:scale-105
+                            hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
+                            transition duration-300
+                        "
+                    >
 
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="w-5 h-5 text-cyan-600"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor">
+                        <!-- ICON KAMERA (TETAP SVG KAMU) -->
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5 text-cyan-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
 
-                        <path stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M3 7h4l2-2h6l2 2h4v12H3z"/>
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M3 7h4l2-2h6l2 2h4v12H3z"/>
 
-                        <circle cx="12"
-                                cy="13"
-                                r="4"
-                                stroke="currentColor"
-                                stroke-width="2"/>
+                            <circle cx="12"
+                                    cy="13"
+                                    r="4"
+                                    stroke="currentColor"
+                                    stroke-width="2"/>
+                        </svg>
 
-                    </svg>
+                        <!-- INPUT FILE -->
+                        <input type="file" name="photo" class="hidden"
+                            onchange="this.form.submit()">
 
-                    <input type="file" class="hidden">
+                    </label>
 
-                </label>
+                </form>
 
             </div>
 
@@ -129,7 +151,7 @@
                             <div class="pb-2 border-b">
                                 <p class="text-gray-500 text-sm mb-4">Nama Lengkap</p>
                                 <p class="text-gray-800 font-medium">
-                                    {{ auth()->user()->name ?? '-' }}
+                                    {{ auth()->user()->nama ?? '-' }}
                                 </p>
                             </div>
 
@@ -143,14 +165,14 @@
                             <div class="pb-2 border-b">
                                 <p class="text-gray-500 text-sm mb-4">Nomor Ponsel</p>
                                 <p class="text-gray-800 font-medium">
-                                    {{ auth()->user()->phone ?? '-' }}
+                                    {{ auth()->user()->anggota->no_hp ?? '-' }}
                                 </p>
                             </div>
 
                             <div class="pb-4 border-b">
                                 <p class="text-gray-500 text-sm mb-4">Alamat Lengkap</p>
                                 <p class="text-gray-800 font-medium">
-                                    {{ auth()->user()->alamat ?? '-' }}
+                                    {{ auth()->user()->anggota->alamat ?? '-' }}
                                 </p>
                             </div>
 
@@ -170,19 +192,11 @@
                             </h2>
 
 
-                            <form
-                                method="POST"
-                                action="#"
-                                class="space-y-6 mb-6"
-                            >
+                        <form method="POST" action="{{ route('anggota.profile.update') }}" class="space-y-6 mb-6">
+                            @csrf
+                            @method('PUT')
 
-                                @csrf
-                                @method('PUT')
-
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value="{{ auth()->user()->name }}"
+                                <input type="text" name="nama" value="{{ auth()->user()->nama }}"
                                     placeholder="Nama Lengkap"
                                     class="
                                         w-full px-4 py-3 rounded-xl text-sm
@@ -222,7 +236,7 @@
                                 <input
                                     type="text"
                                     name="phone"
-                                    value="{{ auth()->user()->phone }}"
+                                    value="{{ auth()->user()->anggota->no_hp ?? '' }}"
                                     placeholder="Nomor Ponsel"
                                     class="
                                         w-full px-4 py-3 rounded-xl text-sm
@@ -242,7 +256,7 @@
                                 <input
                                     type="text"
                                     name="alamat"
-                                    value="{{ auth()->user()->alamat }}"
+                                    value="{{ auth()->user()->anggota->alamat ?? '' }}"
                                     placeholder="Alamat Lengkap"
                                     class="
                                         w-full px-4 py-3 rounded-xl text-sm
@@ -349,7 +363,7 @@
             Ubah Kata Sandi
         </h3>
 
-        <form method="POST" action="/update-password" class="space-y-5">
+        <form method="POST" action="{{ route('anggota.profile.password') }}" class="space-y-5">
             @csrf
 
             <!-- PASSWORD LAMA -->

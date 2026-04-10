@@ -95,16 +95,28 @@
                 <button
                     id="profileBtn"
                     class="w-9 h-9 rounded-full
-                    bg-gradient-to-br from-cyan-500 to-cyan-500
-                    text-white font-semibold text-sm
-                    flex items-center justify-center
+                    overflow-hidden
                     ring-2 ring-cyan-300/40
                     shadow-[0_0_12px_rgba(34,211,238,0.45)]
                     hover:scale-105
                     hover:shadow-[0_0_18px_rgba(34,211,238,0.65)]
                     transition duration-300"
                 >
-                    IM
+
+                    @if(auth()->user()->photo)
+                        <img 
+                            src="{{ asset('storage/' . auth()->user()->photo) }}"
+                            class="w-full h-full object-cover"
+                        >
+                    @else
+                        <div class="w-full h-full flex items-center justify-center
+                            bg-gradient-to-br from-cyan-500 to-cyan-500
+                            text-white font-semibold text-sm">
+
+                            {{ strtoupper(substr(auth()->user()->nama ?? 'IM', 0, 2)) }}
+                        </div>
+                    @endif
+
                 </button>
 
                 <!-- PROFILE DROPDOWN -->
@@ -124,16 +136,24 @@
                         <!-- AVATAR -->
                         <div class="relative">
 
-                            <div
-                                class="w-16 h-16 rounded-full
-                                bg-gradient-to-br from-cyan-400 to-cyan-500
-                                flex items-center justify-center
-                                text-xl font-semibold">
-                                IM
-                            </div>
+                            @if(auth()->user()->photo)
+                                <img 
+                                    src="{{ asset('storage/' . auth()->user()->photo) }}"
+                                    class="w-16 h-16 rounded-full object-cover border-2 border-white shadow"
+                                >
+                            @else
+                                <div
+                                    class="w-16 h-16 rounded-full
+                                    bg-gradient-to-br from-cyan-400 to-cyan-500
+                                    flex items-center justify-center
+                                    text-xl font-semibold text-white">
+
+                                    {{ strtoupper(substr(auth()->user()->nama ?? 'IM', 0, 2)) }}
+                                </div>
+                            @endif
 
                             <!-- SETTINGS ICON -->
-                            <a href="{{ route('anggota.data_profile') }}">
+                            <a href="{{ route('anggota.data.profile') }}">
                             <div
                                 class="absolute -bottom-1 -right-1
                                 w-7 h-7 bg-white rounded-full
@@ -182,7 +202,7 @@
 
                         <div>
                             <div class="font-semibold text-lg leading-tight">
-                                {{ auth()->user()->nama ?? 'Irvan Mutaqin' }}
+                                {{ auth()->user()->nama ?? 'User' }}
                             </div>
 
                             <div class="text-xs flex items-center gap-2 opacity-90 mt-1">
@@ -190,8 +210,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                                 </svg>
-
-                                {{ auth()->user()->email ?? 'irvan@email.com' }}
+                                    {{ auth()->user()->email ?? '-' }}
                             </div>
 
                             <a href="{{ route('anggota.profile') }}"
@@ -223,7 +242,7 @@
                             </div>
 
                             <span class="text-sm text-cyan-600">
-                                Rak Pinjam
+                                Rak Pribadi
                             </span>
                         </a>
                     </div>

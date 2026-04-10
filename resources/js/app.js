@@ -19,6 +19,7 @@ import { initBookActionsModal } from "./bookActionsModal";
 import { initSearch } from "./search";
 import { initSearchNavbar } from "./searchNavbar";
 import { initSidebarActive } from "./sidebar-active";
+import { initShare } from "./share";
 
 import { initAnggotaToast } from "./anggotaToast";
 import {
@@ -62,6 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     initLaporanPage();
     initChartFilter();
+
+    initShare();
 
     // =========================
     // AJAX TABLE ANGGOTA

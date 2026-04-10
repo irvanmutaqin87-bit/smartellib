@@ -47,7 +47,7 @@ class BerandaController extends Controller
             ->withAvg('ratings as average_rating', 'rating')
             ->orderByDesc('average_rating')
             ->orderByDesc('total_rating')
-            ->take(7)
+            ->take(8)
             ->get();
 
         return view('anggota.beranda', compact(

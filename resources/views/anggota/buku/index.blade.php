@@ -230,7 +230,7 @@
                     />
                 </div>
 
-                <h3 class="mt-3 text-sm font-semibold text-gray-800 line-clamp-2">
+                <h3 class="mt-3 text-sm font-semibold text-gray-800 line-clamp-1">
                     {{ $book->judul }}
                 </h3>
 

@@ -35,13 +35,18 @@
             </div>
 
             <!-- CENTER BOOK -->
-            <div id="centerCard" class="absolute z-10 transition-all duration-700 ease-[cubic-bezier(.22,.61,.36,1)]">
+            <div id="centerCard" class="absolute z-10 flex flex-col items-center w-[240px] transition-all duration-700 ease-[cubic-bezier(.22,.61,.36,1)]">
                 <a id="centerLink" href="#">
                     <img id="centerImg" class="w-52 aspect-[2/3] object-cover rounded-xl shadow-2xl transition">
                 </a>
 
-                <h3 id="bookTitle" class="text-center mt-4 font-semibold text-sm"></h3>
-                <p id="bookAuthor" class="text-center text-xs text-gray-500"></p>
+                <h3 id="bookTitle"
+                    class="text-center mt-4 font-semibold text-sm w-full truncate">
+                </h3>
+
+                <p id="bookAuthor"
+                class="text-center text-xs text-gray-500 w-full truncate">
+                </p>
             </div>
 
             <!-- RIGHT BOOK -->
@@ -105,13 +110,15 @@
                     />
                 </div>
 
-                <h3 class="mt-3 text-sm font-semibold text-gray-800 line-clamp-2">
-                    {{ $buku->judul }}
-                </h3>
+                    <h3 title="{{ $buku->judul }}"
+                        class="mt-3 text-sm font-semibold text-gray-800 line-clamp-1">
+                        {{ $buku->judul }}
+                    </h3>
 
-                <p class="text-xs text-gray-500">
-                    {{ $buku->penulis }}
-                </p>
+                    <p title="{{ $buku->penulis }}"
+                    class="text-xs text-gray-500 truncate">
+                        {{ $buku->penulis }}
+                    </p>
 
                 <div class="flex items-center gap-2 mt-2">
                     <div class="flex text-yellow-400 text-sm">
@@ -155,13 +162,15 @@
                     >
                 </div>
 
-                <h3 class="mt-4 text-base font-medium text-gray-800 line-clamp-2">
-                    {{ $buku->judul }}
-                </h3>
+                    <h3 title="{{ $buku->judul }}"
+                        class="mt-3 text-sm font-semibold text-gray-800 line-clamp-1">
+                        {{ $buku->judul }}
+                    </h3>
 
-                <p class="text-sm text-gray-500">
-                    {{ $buku->penulis }}
-                </p>
+                    <p title="{{ $buku->penulis }}"
+                    class="text-xs text-gray-500 truncate">
+                        {{ $buku->penulis }}
+                    </p>
 
                 <div class="flex justify-center items-center gap-2 mt-2">
                     <div class="flex text-yellow-400 text-sm">

@@ -50,14 +50,28 @@
 
             <div class="relative">
                 <button id="chartFilterBtn"
-                    class="bg-white border rounded-xl px-4 py-2 text-sm w-[160px] flex justify-between">
+                    class="bg-white border rounded-xl px-4 py-2 text-sm w-[160px] flex justify-between items-center">
+
                     <span id="chartFilterText">Bulanan</span>
+
+                    <svg id="chartFilterIcon"
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="w-4 h-4 transition-all duration-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
+
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 9l-7 7-7-7" />
+                    </svg>
                 </button>
 
                 <input type="hidden" id="chartFilter" value="bulanan">
 
-                <div id="chartFilterDropdown"
-                    class="absolute w-full bg-white rounded-xl shadow mt-2 p-2 hidden">
+                <<div id="chartFilterDropdown"
+                    class="absolute w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border p-2 z-50
+                    origin-top transform scale-[0.95] opacity-0 -translate-y-3 pointer-events-none
+                    transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
 
                     <button class="chartOption w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg" data-value="harian">Harian</button>
                     <button class="chartOption w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg" data-value="bulanan">Bulanan</button>

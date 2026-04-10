@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Models\RiwayatBuku;
 
 class PeminjamanController extends Controller
 {
@@ -100,6 +101,16 @@ class PeminjamanController extends Controller
                 'tanggal_mulai' => now()->toDateString(),
                 'tanggal_jatuh_tempo' => now()->addDays($lamaPeminjaman)->toDateString(),
                 'status' => 'dipinjam',
+            ]);
+
+            // =========================
+            // RIWAYAT BUKU (PINJAM)
+            // =========================
+            RiwayatBuku::create([
+                'anggota_id' => $anggota->id,
+                'buku_id' => $buku->id,
+                'jenis_aktivitas' => 'pinjam',
+                'waktu_mulai' => now(),
             ]);
 
             DB::commit();
@@ -195,6 +206,25 @@ class PeminjamanController extends Controller
             $peminjaman->tanggal_kembali = $tanggalKembali->toDateString();
             $peminjaman->status = 'dikembalikan';
             $peminjaman->save();
+
+            // =========================
+            // RIWAYAT BUKU (KEMBALIKAN)
+            // =========================
+            RiwayatBuku::where('anggota_id', $anggota->id)
+                ->where('buku_id', $peminjaman->buku_id)
+                ->where('jenis_aktivitas', 'pinjam')
+                ->whereNull('waktu_selesai')
+                ->latest()
+                ->first()?->update([
+                    'waktu_selesai' => now()
+                ]);
+
+            RiwayatBuku::create([
+                'anggota_id' => $anggota->id,
+                'buku_id' => $peminjaman->buku_id,
+                'jenis_aktivitas' => 'kembalikan',
+                'waktu_mulai' => now(),
+            ]);
 
             // =========================
             // CEK TERLAMBAT + DENDA

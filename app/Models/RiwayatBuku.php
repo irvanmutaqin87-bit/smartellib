@@ -8,32 +8,25 @@ class RiwayatBuku extends Model
 {
     protected $table = 'riwayat_buku';
 
-    protected $primaryKey = 'id_riwayat';
+    protected $primaryKey = 'id'; // FIX
 
     protected $fillable = [
-        'id_anggota',
-        'id_buku',
+        'anggota_id',
+        'buku_id',
         'jenis_aktivitas',
         'waktu_mulai',
         'waktu_selesai'
     ];
 
-    // Tidak pakai timestamps default Laravel
-    public $timestamps = false;
-
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi
-    |--------------------------------------------------------------------------
-    */
+    public $timestamps = true; // karena pakai created_at
 
     public function anggota()
     {
-        return $this->belongsTo(Anggota::class, 'id_anggota', 'id_anggota');
+        return $this->belongsTo(Anggota::class, 'anggota_id');
     }
 
     public function buku()
     {
-        return $this->belongsTo(Buku::class, 'id_buku', 'id_buku');
+        return $this->belongsTo(Buku::class, 'buku_id');
     }
 }

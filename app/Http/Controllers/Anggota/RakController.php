@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Peminjaman;
 use App\Models\BookComment;
 use App\Models\AntrianPeminjaman;
+use App\Models\RiwayatBuku;
+
 
 class RakController extends Controller
 {
@@ -36,14 +38,16 @@ class RakController extends Controller
         }
 
         // ================= RIWAYAT =================
+
         $riwayat = collect();
         if ($user->anggota) {
-            $riwayat = Peminjaman::with('buku')
-                ->where('anggota_id', $user->anggota->id)
-                ->where('status', 'dikembalikan')
-                ->latest()
-                ->get()
-                ->unique('buku_id');
+        $riwayat = RiwayatBuku::with('buku')
+            ->where('anggota_id', $user->anggota->id)
+            ->whereIn('jenis_aktivitas', ['pinjam', 'kembalikan'])
+            ->latest('waktu_mulai')
+            ->get()
+            ->unique('buku_id')
+            ->values();
         }
 
         // ================= ULASAN =================

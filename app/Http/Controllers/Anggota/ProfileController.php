@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Anggota;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Models\BookComment;
-use App\Models\Peminjaman;
+use App\Models\RiwayatBuku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -56,17 +56,19 @@ class ProfileController extends Controller
      * AMBIL RIWAYAT (REUSABLE)
      * =====================
      */
-    private function getRiwayat($user)
-    {
-        if (!$user->anggota) {
-            return collect();
-        }
 
-        return Peminjaman::with('buku')
-            ->where('anggota_id', $user->anggota->id)
-            ->latest()
-            ->get();
-    }
+      private function getRiwayat($user)
+      {
+          if (!$user->anggota) {
+              return collect();
+          }
+
+          return RiwayatBuku::with('buku')
+              ->where('anggota_id', $user->anggota->id)
+              ->latest()
+              ->get()
+              ->unique('buku_id'); // biar ga double
+      }
 
     /**
      * =====================

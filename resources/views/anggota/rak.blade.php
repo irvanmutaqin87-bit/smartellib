@@ -138,9 +138,14 @@
                                 {{ $item->buku->penulis }}
                             </p>
 
-                            <p class="text-sm mt-2 text-gray-700">
-                                Pernah dipinjam
+                            <p class="text-sm mt-2">
+                                @if($item->jenis_aktivitas == 'pinjam')
+                                    <span class="text-blue-500">Dipinjam</span>
+                                @elseif($item->jenis_aktivitas == 'kembalikan')
+                                    <span class="text-emerald-500">Dikembalikan</span>
+                                @endif
                             </p>
+
                         </div>
 
                     </div>

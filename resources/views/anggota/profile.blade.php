@@ -191,6 +191,11 @@
                                             {{ $item->buku->penulis }}
                                         </p>
 
+                                        <p class="text-sm mt-2 text-gray-500">
+                                            {{ ucfirst($item->jenis_aktivitas) }} • 
+                                            {{ \Carbon\Carbon::parse($item->waktu_mulai)->format('d M Y') }}
+                                        </p>
+
                                     </a>
 
                                     @empty

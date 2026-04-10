@@ -5,6 +5,28 @@
 @section('content')
 
 <section class="py-24">
+    
+    <!-- TOAST SUCCESS -->
+    @if(session('success'))
+        <div class="absolute top-6 left-1/2 -translate-x-1/2 z-50">
+            <div class="backdrop-blur-xl bg-emerald-400/20 border border-emerald-300/40 
+                        text-emerald-900 px-6 py-3 rounded-xl shadow-xl 
+                        text-sm font-medium animate-fade-in">
+                {{ session('success') }}
+            </div>
+        </div>
+    @endif
+
+    <!-- TOAST ERROR (DINAMIS DARI CONTROLLER) -->
+    @if(session('error'))
+        <div class="absolute top-6 left-1/2 -translate-x-1/2 z-50">
+            <div class="backdrop-blur-xl bg-red-400/20 border border-red-300/40 
+                        text-red-900 px-6 py-3 rounded-xl shadow-xl 
+                        text-sm font-medium animate-fade-in">
+                {{ session('error') }}
+            </div>
+        </div>
+    @endif
 
     <main class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
 

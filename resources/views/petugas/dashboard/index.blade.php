@@ -68,7 +68,7 @@
 
                 <input type="hidden" id="chartFilter" value="bulanan">
 
-                <<div id="chartFilterDropdown"
+                <div id="chartFilterDropdown"
                     class="absolute w-full bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl border p-2 z-50
                     origin-top transform scale-[0.95] opacity-0 -translate-y-3 pointer-events-none
                     transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
